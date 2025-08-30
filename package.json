@@ -1,0 +1,19 @@
+{
+	"name": "stryderhub",
+	"version": "0.0.1",
+	"description": "",
+	"main": "src/main.js",
+	"scripts": {
+		"dev": "nodemon ."
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/SDCore/StryderHub.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/SDCore/StryderHub/issues"
+	},
+	"homepage": "https://github.com/SDCore/StryderHub#readme"
+}
