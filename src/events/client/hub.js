@@ -68,7 +68,7 @@ module.exports = {
 
 						channel.messages.fetch(process.env.MESSAGE_ID).then(msg => {
 							msg.edit({
-								embeds: null,
+								embeds: [],
 								components: hubContainer,
 								flags: MessageFlags.IsComponentsV2,
 							});
