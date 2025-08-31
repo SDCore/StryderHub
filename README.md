@@ -1,1 +1,3 @@
 # StryderHub
+
+Discord bot hub
