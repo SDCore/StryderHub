@@ -54,7 +54,7 @@ function convertTimeToUnix(string) {
 
 	const unixTimestampDate = new Date(fullDateTimeString);
 
-	return Math.floor(unixTimestampDate.getTime() / 1000);
+	return `${Math.floor(unixTimestampDate.getTime() / 1000)}\n\n${today}\n\n${today.getFullYear()}\n\n${today.getMonth() + 1}\n\n${today.getDate()}\n\n${unixTimestampDate}`;
 }
 
 module.exports = { emoteFile, conditionText, convertTimeToUnix };
