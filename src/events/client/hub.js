@@ -13,7 +13,7 @@ const {
 	SlashCommandBuilder,
 	SeparatorSpacingSize,
 } = require('discord.js');
-const { emoteFile } = require('../../utils.js');
+const { emoteFile, conditionText, convertTimeToUnix } = require('../../utils.js');
 
 const emotes = require(`../../data/${emoteFile(process.env.DEBUG)}Emotes.json`);
 
@@ -33,7 +33,7 @@ module.exports = {
 			// if minute is divisible by 5, continue
 			if (minute % process.env.INTERVAL != 0) return;
 
-			const weatherURL = axios.get(`https://api.weatherapi.com/v1/forecast.json?key=${process.env.WEATHER_API}&q=${process.env.WEATHER_CODE}&days=1&aqi=no&alerts=no`);
+			const weatherURL = axios.get(`https://api.weatherapi.com/v1/forecast.json?key=${process.env.WEATHER_API}&q=${process.env.WEATHER_CODE}&days=3&aqi=no&alerts=no`);
 
 			await axios
 				.all([weatherURL])
@@ -43,25 +43,31 @@ module.exports = {
 
 						const timeEmote = weatherData.current.is_day ? emotes.clearDay : emotes.clearNight;
 
+						const condition = conditionText(weatherData.current.condition.text);
+						const currentSunriseTime = convertTimeToUnix(weatherData.forecast.forecastday[0].astro.sunrise);
+						const currentSunsetTime = convertTimeToUnix(weatherData.forecast.forecastday[0].astro.sunset);
+
 						const hubContainer = [
 							new ContainerBuilder()
 								.addTextDisplayComponents(
-									new TextDisplayBuilder().setContent(`# ${timeEmote} Weather for ${weatherData.location.name}, ${weatherData.location.region}\n-# Conditions are ${weatherData.current.condition.text}`),
-								)
-								.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
-								.addTextDisplayComponents(
 									new TextDisplayBuilder().setContent(
-										`## Currently: ${weatherData.current.temp_f}°F\n-# 🌡️ Feels Like: ${weatherData.current.feelslike_f}°F\n-# ${emotes.tempHigh} High of ${weatherData.forecast.forecastday[0].day.maxtemp_f}°F\n-# ${emotes.tempLow} Low of ${weatherData.forecast.forecastday[0].day.mintemp_f}°F`,
+										`# ${timeEmote} Weather for ${weatherData.location.name}, ${weatherData.location.region}\n-# ${emotes.listArrow} Current Conditions: ${condition}\n-# ${emotes.listArrow} Winds ${weatherData.current.wind_dir} at ${weatherData.current.wind_mph} mph`,
 									),
 								)
 								.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
 								.addTextDisplayComponents(
 									new TextDisplayBuilder().setContent(
-										`## Daily Forecast\n-# Sunrise: ${weatherData.forecast.forecastday[0].astro.sunrise}\n-# Sunset: ${weatherData.forecast.forecastday[0].astro.sunset}`,
+										`## Today's Forecast\n### Temperature: ${weatherData.current.temp_f}°F\n-# 🌡️ Feels Like: ${weatherData.current.feelslike_f}°F\n-# ${emotes.tempHigh} High of ${weatherData.forecast.forecastday[0].day.maxtemp_f}°F\n-# ${emotes.tempLow} Low of ${weatherData.forecast.forecastday[0].day.mintemp_f}°F\n### Daylight\n-# Sunrise: <t:${currentSunriseTime}:t> [<t:${currentSunriseTime}:R>]\n-# Sunset: <t:${currentSunsetTime}:t> [<t:${currentSunsetTime}:R>]`,
 									),
 								)
+								// .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
+								// .addTextDisplayComponents(
+								// 	new TextDisplayBuilder().setContent(
+								// 		`## 3 Day Forecast\n### Tomorrow\n-# ${emotes.tempHigh} High of ${weatherData.forecast.forecastday[1].day.maxtemp_f}°F\n-# ${emotes.tempLow} Low of ${weatherData.forecast.forecastday[1].day.mintemp_f}°F`,
+								// 	),
+								// )
 								.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
-								.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Last Updated: <t:${weatherData.current.last_updated_epoch}:f>`)),
+								.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Data Updated <t:${weatherData.current.last_updated_epoch}:f>`)),
 						];
 
 						const guild = client.guilds.cache.get(process.env.SERVER_ID);
