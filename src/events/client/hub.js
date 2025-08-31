@@ -2,7 +2,6 @@ const chalk = require('chalk');
 const axios = require('axios');
 const {
 	ButtonStyle,
-	EmbedBuilder,
 	MessageFlags,
 	ButtonBuilder,
 	SectionBuilder,
@@ -14,6 +13,9 @@ const {
 	SlashCommandBuilder,
 	SeparatorSpacingSize,
 } = require('discord.js');
+const { emoteFile } = require('../../utils.js');
+
+const emotes = require(`../../data/${emoteFile(process.env.DEBUG)}Emotes.json`);
 
 const wait = n => new Promise(resolve => setTimeout(resolve, n));
 
@@ -23,7 +25,7 @@ module.exports = {
 	execute(client) {
 		if (process.env.ENABLED == 'false') return;
 
-		async function updateStatus() {
+		async function updateHubData() {
 			// get javascript current unix timestamp
 			const now = Date.now();
 			const minute = new Date(now).getMinutes();
@@ -39,26 +41,25 @@ module.exports = {
 					axios.spread((...res) => {
 						const weatherData = res[0].data;
 
-						// const statusEmbed = new EmbedBuilder()
-						// 	.setTitle('Apex Legends Server Status')
-						// 	.setDescription(`**Announcements**\n\n**Last Updated:**`)
-						// 	.addFields([
-						// 		{
-						// 			name: `weather for ${weatherData.location.name} ${weatherData.location.region}`,
-						// 			value: `local time: <t:${weatherData.current.last_updated_epoch}:f>\ntemp: ${weatherData.current.temp_f}*F`,
-						// 			inline: true,
-						// 		},
-						// 	])
-						// 	.setFooter({ text: `bread` })
-						// 	.setTimestamp();
+						const timeEmote = weatherData.current.is_day ? emotes.clearDay : emotes.clearNight;
 
 						const hubContainer = [
 							new ContainerBuilder()
 								.addTextDisplayComponents(
-									new TextDisplayBuilder().setContent(`# 🌤️ Weather for ${weatherData.location.name}, ${weatherData.location.region}\n### Conditions are ${weatherData.current.condition.text}`),
+									new TextDisplayBuilder().setContent(`# ${timeEmote} Weather for ${weatherData.location.name}, ${weatherData.location.region}\n-# Conditions are ${weatherData.current.condition.text}`),
 								)
 								.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
-								.addTextDisplayComponents(new TextDisplayBuilder().setContent(`## Current Temperature: ${weatherData.current.temp_f}°F`))
+								.addTextDisplayComponents(
+									new TextDisplayBuilder().setContent(
+										`## Currently: ${weatherData.current.temp_f}°F\n-# 🌡️ Feels Like: ${weatherData.current.feelslike_f}°F\n-# ${emotes.tempHigh} High of ${weatherData.forecast.forecastday[0].day.maxtemp_f}°F\n-# ${emotes.tempLow} Low of ${weatherData.forecast.forecastday[0].day.mintemp_f}°F`,
+									),
+								)
+								.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
+								.addTextDisplayComponents(
+									new TextDisplayBuilder().setContent(
+										`## Daily Forecast\n-# Sunrise: ${weatherData.forecast.forecastday[0].astro.sunrise}\n-# Sunset: ${weatherData.forecast.forecastday[0].astro.sunset}`,
+									),
+								)
 								.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
 								.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Last Updated: <t:${weatherData.current.last_updated_epoch}:f>`)),
 						];
@@ -74,36 +75,36 @@ module.exports = {
 							});
 						});
 
-						console.log(chalk.blue(`${chalk.bold(`[BOT]`)} Server status embed updated`));
+						console.log(chalk.blue(`${chalk.bold(`[BOT]`)} Hub Data Updated`));
 
 						const now = new Date(); // allow for time passing
 						var delay = 60000 - (now % 60000); // exact ms to next minute interval
-						setTimeout(updateStatus, delay);
+						setTimeout(updateHubData, delay);
 					}),
 				)
 				.catch(async error => {
 					if (error.response) {
-						console.log(chalk.yellow(`${chalk.bold('[Status Lookup Error]')} ${error.response.data}`));
+						console.log(chalk.yellow(`${chalk.bold('[Data Lookup Error]')} ${error.response.data}`));
 
 						await wait(5000);
 
-						updateStatus();
+						updateHubData();
 					} else if (error.request) {
 						console.log(error.request);
 
 						await wait(5000);
 
-						updateStatus();
+						updateHubData();
 					} else {
 						console.log(error.message);
 
 						await wait(5000);
 
-						updateStatus();
+						updateHubData();
 					}
 				});
 		}
 
-		updateStatus();
+		updateHubData();
 	},
 };

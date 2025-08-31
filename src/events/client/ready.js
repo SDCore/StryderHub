@@ -13,13 +13,15 @@ module.exports = {
 		(async function presenceLoop() {
 			const currentMinute = new Date().getMinutes();
 			const currentDay = new Date().getDate();
+			const currentMonth = new Date().getMonth() + 1;
+			const currentYear = new Date().getFullYear();
 
 			if (currentMinute % 10 == 0) {
 				client.user.setPresence({
 					activities: [
 						{
 							type: ActivityType.Custom,
-							name: `bread // ${currentDay}`,
+							name: `Stryder Data Tunnel · ${currentMonth}/${currentDay}/${currentYear}`,
 						},
 					],
 				});
