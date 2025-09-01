@@ -47,6 +47,9 @@ module.exports = {
 						const currentSunriseTime = convertTimeToUnix(weatherData.forecast.forecastday[0].astro.sunrise);
 						const currentSunsetTime = convertTimeToUnix(weatherData.forecast.forecastday[0].astro.sunset);
 
+						// TODO: Proper precipitation check that considers both rain and snow
+						// TODO: 3-day forecast
+
 						const hubContainer = [
 							new ContainerBuilder()
 								.addTextDisplayComponents(
@@ -57,7 +60,7 @@ module.exports = {
 								.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
 								.addTextDisplayComponents(
 									new TextDisplayBuilder().setContent(
-										`## Today's Forecast\n### Temperature: ${weatherData.current.temp_f}°F\n-# 🌡️ Feels Like: ${weatherData.current.feelslike_f}°F\n-# ${emotes.tempHigh} High of ${weatherData.forecast.forecastday[0].day.maxtemp_f}°F\n-# ${emotes.tempLow} Low of ${weatherData.forecast.forecastday[0].day.mintemp_f}°F\n### Daylight\n-# Sunrise: <t:${currentSunriseTime}:t> [<t:${currentSunriseTime}:R>]\n-# Sunset: <t:${currentSunsetTime}:t> [<t:${currentSunsetTime}:R>]`,
+										`## Today's Forecast\n### Temperature: ${weatherData.current.temp_f}°F\n-# 🌡️ Feels Like: ${weatherData.current.feelslike_f}°F\n-# ${emotes.tempHigh} High of ${weatherData.forecast.forecastday[0].day.maxtemp_f}°F\n-# ${emotes.tempLow} Low of ${weatherData.forecast.forecastday[0].day.mintemp_f}°F\n### Daylight & Precipitation\n-# Chance of Rain: ${weatherData.forecast.forecastday[0].day.daily_chance_of_rain}%\n-# Sunrise: <t:${currentSunriseTime}:t> [<t:${currentSunriseTime}:R>]\n-# Sunset: <t:${currentSunsetTime}:t> [<t:${currentSunsetTime}:R>]`,
 									),
 								)
 								// .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
