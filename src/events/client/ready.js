@@ -43,7 +43,7 @@ module.exports = {
 			const files = fs.readdirSync(`${__dirname}/../../commands/${folder}`).filter(file => file.endsWith('.js'));
 
 			for (const file of files) {
-				const command = require(`../../commands/${folder}/${file}`);
+				command = require(`../../commands/${folder}/${file}`);
 
 				commands.push(command.data.toJSON());
 				client.commands.set(command.data.name, command);

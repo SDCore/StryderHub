@@ -1,19 +1,7 @@
 const chalk = require('chalk');
 const axios = require('axios');
-const {
-	ButtonStyle,
-	MessageFlags,
-	ButtonBuilder,
-	SectionBuilder,
-	MediaGalleryItem,
-	ContainerBuilder,
-	SeparatorBuilder,
-	TextDisplayBuilder,
-	MediaGalleryBuilder,
-	SlashCommandBuilder,
-	SeparatorSpacingSize,
-} = require('discord.js');
 const { emoteFile, conditionText, convertTimeToUnix, currentConditionEmote } = require('../../utils.js');
+const { MessageFlags, ContainerBuilder, SeparatorBuilder, TextDisplayBuilder, SeparatorSpacingSize } = require('discord.js');
 
 const emotes = require(`../../data/${emoteFile(process.env.DEBUG)}Emotes.json`);
 
