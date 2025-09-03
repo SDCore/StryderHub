@@ -13,7 +13,7 @@ const {
 	SlashCommandBuilder,
 	SeparatorSpacingSize,
 } = require('discord.js');
-const { emoteFile, conditionText, convertTimeToUnix } = require('../../utils.js');
+const { emoteFile, conditionText, convertTimeToUnix, currentConditionEmote } = require('../../utils.js');
 
 const emotes = require(`../../data/${emoteFile(process.env.DEBUG)}Emotes.json`);
 
@@ -41,8 +41,6 @@ module.exports = {
 					axios.spread((...res) => {
 						const weatherData = res[0].data;
 
-						const timeEmote = weatherData.current.is_day ? emotes.clearDay : emotes.clearNight;
-
 						const condition = conditionText(weatherData.current.condition.text);
 						const currentSunriseTime = convertTimeToUnix(weatherData.forecast.forecastday[0].astro.sunrise);
 						const currentSunsetTime = convertTimeToUnix(weatherData.forecast.forecastday[0].astro.sunset);
@@ -54,7 +52,9 @@ module.exports = {
 							new ContainerBuilder()
 								.addTextDisplayComponents(
 									new TextDisplayBuilder().setContent(
-										`# ${timeEmote} Weather for ${weatherData.location.name}, ${weatherData.location.region}\n-# ${emotes.listArrow} Current Conditions: ${condition}\n-# ${emotes.listArrow} Winds ${weatherData.current.wind_dir} at ${weatherData.current.wind_mph} mph`,
+										`# ${currentConditionEmote(weatherData.current.is_day, weatherData.current.condition.text)} Weather for ${weatherData.location.name}, ${weatherData.location.region}\n-# ${
+											emotes.listArrow
+										} Current Conditions: ${condition}\n-# ${emotes.listArrow} Winds ${weatherData.current.wind_dir} at ${weatherData.current.wind_mph} mph`,
 									),
 								)
 								.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
