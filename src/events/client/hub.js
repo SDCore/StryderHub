@@ -17,9 +17,6 @@ module.exports = {
 			const now = Date.now();
 			const minute = new Date(now).getMinutes();
 
-			console.log(minute);
-			console.log(minute % process.env.INTERVAL);
-
 			if (minute % process.env.INTERVAL == 0) {
 				const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${process.env.WEATHER_API_KEY}/${process.env.WEATHER_LAT},${process.env.WEATHER_LONG}`);
 
