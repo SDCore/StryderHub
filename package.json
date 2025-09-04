@@ -1,6 +1,6 @@
 {
 	"name": "stryderhub",
-	"version": "0.0.10-3",
+	"version": "0.0.11",
 	"description": "",
 	"main": "src/main.js",
 	"scripts": {
