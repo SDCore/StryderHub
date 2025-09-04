@@ -49,18 +49,6 @@ function conditionText(condition) {
 	}
 }
 
-function convertTimeToUnix(string) {
-	const today = new Date();
-
-	process.env.TZ = `America/Chicago`;
-
-	const fullDateTimeString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()} ${string}`;
-
-	const unixTimestampDate = new Date(fullDateTimeString);
-
-	return Math.floor(unixTimestampDate.getTime() / 1000);
-}
-
 function currentConditionEmote(time, condition) {
 	if (time)
 		switch (condition) {
@@ -78,4 +66,4 @@ function currentConditionEmote(time, condition) {
 	}
 }
 
-module.exports = { emoteFile, conditionText, convertTimeToUnix, currentConditionEmote };
+module.exports = { emoteFile, conditionText, currentConditionEmote };
