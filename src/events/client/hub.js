@@ -83,10 +83,6 @@ module.exports = {
 							});
 
 							console.log(chalk.blue(`${chalk.bold(`[BOT]`)} Hub Data Updated`));
-
-							const now = new Date(); // allow for time passing
-							var delay = 60000 - (now % 60000); // exact ms to next minute interval
-							setTimeout(updateHubData, delay);
 						}),
 					)
 					.catch(async error => {
@@ -110,6 +106,10 @@ module.exports = {
 							updateHubData();
 						}
 					});
+
+				const now = new Date(); // allow for time passing
+				var delay = 60000 - (now % 60000); // exact ms to next minute interval
+				setTimeout(updateHubData, delay);
 			}
 		}
 
