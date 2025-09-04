@@ -1,3 +1,5 @@
+const emotes = require(`./data/${emoteFile(process.env.DEBUG)}Emotes.json`);
+
 function emoteFile(debug) {
 	if (debug === 'true') return 'dev';
 
@@ -59,4 +61,21 @@ function convertTimeToUnix(string) {
 	return Math.floor(unixTimestampDate.getTime() / 1000);
 }
 
-module.exports = { emoteFile, conditionText, convertTimeToUnix };
+function currentConditionEmote(time, condition) {
+	if (time)
+		switch (condition) {
+			case 'Sunny':
+				return emotes.clearDay;
+			default:
+				return emotes.clearDay;
+		}
+
+	switch (condition) {
+		case 'Clear':
+			return emotes.clearNight;
+		default:
+			return emotes.clearNight;
+	}
+}
+
+module.exports = { emoteFile, conditionText, convertTimeToUnix, currentConditionEmote };

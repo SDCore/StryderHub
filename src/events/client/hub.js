@@ -1,19 +1,7 @@
 const chalk = require('chalk');
 const axios = require('axios');
-const {
-	ButtonStyle,
-	MessageFlags,
-	ButtonBuilder,
-	SectionBuilder,
-	MediaGalleryItem,
-	ContainerBuilder,
-	SeparatorBuilder,
-	TextDisplayBuilder,
-	MediaGalleryBuilder,
-	SlashCommandBuilder,
-	SeparatorSpacingSize,
-} = require('discord.js');
-const { emoteFile, conditionText, convertTimeToUnix } = require('../../utils.js');
+const { emoteFile, conditionText, convertTimeToUnix, currentConditionEmote } = require('../../utils.js');
+const { MessageFlags, ContainerBuilder, SeparatorBuilder, TextDisplayBuilder, SeparatorSpacingSize } = require('discord.js');
 
 const emotes = require(`../../data/${emoteFile(process.env.DEBUG)}Emotes.json`);
 
@@ -26,14 +14,12 @@ module.exports = {
 		if (process.env.ENABLED == 'false') return;
 
 		async function updateHubData() {
-			// get javascript current unix timestamp
 			const now = Date.now();
 			const minute = new Date(now).getMinutes();
 
-			// if minute is divisible by 5, continue
 			if (minute % process.env.INTERVAL != 0) return;
 
-			const weatherURL = axios.get(`https://api.weatherapi.com/v1/forecast.json?key=${process.env.WEATHER_API}&q=${process.env.WEATHER_CODE}&days=3&aqi=no&alerts=no`);
+			const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${process.env.WEATHER_API_KEY}/${process.env.WEATHER_LAT},${process.env.WEATHER_LONG}`);
 
 			await axios
 				.all([weatherURL])
@@ -41,11 +27,13 @@ module.exports = {
 					axios.spread((...res) => {
 						const weatherData = res[0].data;
 
-						const timeEmote = weatherData.current.is_day ? emotes.clearDay : emotes.clearNight;
+						const nowUnix = Math.floor(Date.now() / 1000);
 
-						const condition = conditionText(weatherData.current.condition.text);
-						const currentSunriseTime = convertTimeToUnix(weatherData.forecast.forecastday[0].astro.sunrise);
-						const currentSunsetTime = convertTimeToUnix(weatherData.forecast.forecastday[0].astro.sunset);
+						const nowCondition = conditionText(weatherData.currently.summary);
+						const todaySunriseTime = weatherData.daily.data[0].sunriseTime;
+						const todaySunsetTime = weatherData.daily.data[0].sunsetTime;
+
+						const isDayTime = nowUnix >= todaySunriseTime && nowUnix < todaySunsetTime ? 1 : 0;
 
 						// TODO: Proper precipitation check that considers both rain and snow
 						// TODO: 3-day forecast
@@ -54,13 +42,21 @@ module.exports = {
 							new ContainerBuilder()
 								.addTextDisplayComponents(
 									new TextDisplayBuilder().setContent(
-										`# ${timeEmote} Weather for ${weatherData.location.name}, ${weatherData.location.region}\n-# ${emotes.listArrow} Current Conditions: ${condition}\n-# ${emotes.listArrow} Winds ${weatherData.current.wind_dir} at ${weatherData.current.wind_mph} mph`,
+										`# ${currentConditionEmote(isDayTime, nowCondition)} Weather for Mundelein, IL\n-# ${emotes.listArrow} Current Conditions: ${nowCondition}\n-# ${
+											emotes.listArrow
+										} Winds at ${Math.floor(weatherData.currently.windSpeed)} mph, with gusts up to ${Math.floor(weatherData.currently.windGust)} mph`,
 									),
 								)
 								.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
 								.addTextDisplayComponents(
 									new TextDisplayBuilder().setContent(
-										`## Today's Forecast\n### Temperature: ${weatherData.current.temp_f}°F\n-# 🌡️ Feels Like: ${weatherData.current.feelslike_f}°F\n-# ${emotes.tempHigh} High of ${weatherData.forecast.forecastday[0].day.maxtemp_f}°F\n-# ${emotes.tempLow} Low of ${weatherData.forecast.forecastday[0].day.mintemp_f}°F\n### Daylight & Precipitation\n-# Chance of Rain: ${weatherData.forecast.forecastday[0].day.daily_chance_of_rain}%\n-# Sunrise: <t:${currentSunriseTime}:t> [<t:${currentSunriseTime}:R>]\n-# Sunset: <t:${currentSunsetTime}:t> [<t:${currentSunsetTime}:R>]`,
+										`## Today's Forecast\n### Temperature: ${weatherData.currently.temperature.toFixed(1)}°F\n-# 🌡️ Feels Like: ${weatherData.currently.apparentTemperature.toFixed(1)}°F\n-# ${
+											emotes.tempHigh
+										} High of ${weatherData.daily.data[0].temperatureHigh.toFixed(1)}°F at <t:${weatherData.daily.data[0].temperatureHighTime}:t>\n-# ${
+											emotes.tempLow
+										} Low of ${weatherData.daily.data[0].temperatureLow.toFixed(1)}°F at <t:${weatherData.daily.data[0].temperatureLowTime}:t>\n### Daylight & Precipitation\n-# Chance of Rain: ${
+											weatherData.currently.precipProbability * 100
+										}%\n-# Sunrise: <t:${todaySunriseTime}:t> [<t:${todaySunriseTime}:R>]\n-# Sunset: <t:${todaySunsetTime}:t> [<t:${todaySunsetTime}:R>]`,
 									),
 								)
 								// .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
@@ -70,7 +66,7 @@ module.exports = {
 								// 	),
 								// )
 								.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
-								.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Data Updated <t:${weatherData.current.last_updated_epoch}:f>`)),
+								.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Data Updated <t:${weatherData.currently.time}:f>`)),
 						];
 
 						const guild = client.guilds.cache.get(process.env.SERVER_ID);
