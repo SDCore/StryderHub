@@ -19,12 +19,14 @@ module.exports = {
 
 			if (minute % process.env.INTERVAL == 0) {
 				const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${process.env.WEATHER_API_KEY}/${process.env.WEATHER_LAT},${process.env.WEATHER_LONG}`);
+				const geoURL = axios.get(`https://api.geoapify.com/v1/geocode/search?text=${process.env.WEATHER_LAT},${process.env.WEATHER_LONG}&lang=en&limit=1&format=json&apiKey=${process.env.GEO_API_KEY}`);
 
 				await axios
-					.all([weatherURL])
+					.all([weatherURL, geoURL])
 					.then(
 						axios.spread(async (...res) => {
 							const weatherData = res[0].data;
+							const geoData = res[1].data;
 
 							const nowUnix = Math.floor(Date.now() / 1000);
 
@@ -55,9 +57,11 @@ module.exports = {
 								new ContainerBuilder()
 									.addTextDisplayComponents(
 										new TextDisplayBuilder().setContent(
-											`# ${currentConditionEmote(isDayTime, nowCondition)} Weather for Mundelein, IL\n-# ${emotes.listArrow} Conditions are ${nowCondition} as of <t:${
-												weatherData.currently.time
-											}:t>\n-# ${emotes.listArrow} Winds at ${Math.floor(weatherData.currently.windSpeed)} mph, with gusts up to ${Math.floor(weatherData.currently.windGust)} mph`,
+											`# ${currentConditionEmote(isDayTime, nowCondition)} Weather for ${geoData.results[0].city}, ${geoData.results[0].state_code}\n-# ${
+												emotes.listArrow
+											} Conditions are ${nowCondition} as of <t:${weatherData.currently.time}:t>\n-# ${emotes.listArrow} Winds at ${Math.floor(
+												weatherData.currently.windSpeed,
+											)} mph, with gusts up to ${Math.floor(weatherData.currently.windGust)} mph`,
 										),
 									)
 									.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
