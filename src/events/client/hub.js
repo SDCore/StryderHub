@@ -38,7 +38,7 @@ module.exports = {
 							// TODO: Shift Tracking
 
 							function forecastDay(day) {
-								const forecastText = `**<t:${weatherData.daily.data[day].time}:D>** (🌧️ ${weatherData.daily.data[day].precipProbability * 100}%)\n${emotes.tempHigh} ${weatherData.daily.data[
+								const forecastText = `**<t:${weatherData.daily.data[day].time}:D>** (🌧️ ${weatherData.daily.data[day].precipProbability.toFixed(1) * 100}%)\n${emotes.tempHigh} ${weatherData.daily.data[
 									day
 								].temperatureHigh.toFixed(1)}°F / ${emotes.tempLow} ${weatherData.daily.data[day].temperatureLow.toFixed(1)}°F\n`;
 
