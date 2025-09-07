@@ -1,7 +1,10 @@
 const chalk = require('chalk');
 const axios = require('axios');
+const Database = require('better-sqlite3');
 const { emoteFile, conditionText, currentConditionEmote } = require('../../utils.js');
-const { ActionRow, ButtonStyle, MessageFlags, ButtonBuilder, ActionRowBuilder, ContainerBuilder, SeparatorBuilder, TextDisplayBuilder, SeparatorSpacingSize } = require('discord.js');
+const { ButtonStyle, MessageFlags, ButtonBuilder, ActionRowBuilder, ContainerBuilder, TextDisplayBuilder, SeparatorSpacingSize } = require('discord.js');
+
+const db_settings = new Database(`${__dirname}/../../database/settings.sqlite`);
 
 const emotes = require(`../../data/${emoteFile(process.env.DEBUG)}Emotes.json`);
 
@@ -47,11 +50,11 @@ module.exports = {
 								return forecastText;
 							}
 
-							const startShiftButton = new ButtonBuilder().setCustomId('startShift').setLabel('+').setStyle(ButtonStyle.Success);
-							const endShiftButton = new ButtonBuilder().setCustomId('endShift').setLabel('-').setStyle(ButtonStyle.Danger);
-							const toggleForecastButton = new ButtonBuilder().setCustomId('toggleThreeDayForecast').setLabel('Toggle Forecast').setStyle(ButtonStyle.Secondary);
+							const toggleForecastButton = new ButtonBuilder().setCustomId('toggleThreeDayForecast').setLabel('Toggle 3-Day Forecast').setStyle(ButtonStyle.Secondary);
+							// const startShiftButton = new ButtonBuilder().setCustomId('startShift').setLabel('+').setStyle(ButtonStyle.Success).setDisabled(true);
+							// const endShiftButton = new ButtonBuilder().setCustomId('endShift').setLabel('-').setStyle(ButtonStyle.Danger).setDisabled(true);
 
-							const buttonRow = new ActionRowBuilder().addComponents(startShiftButton, endShiftButton, toggleForecastButton);
+							const buttonRow = new ActionRowBuilder().addComponents(toggleForecastButton);
 
 							const hubContainer = new ContainerBuilder();
 
@@ -81,9 +84,13 @@ module.exports = {
 
 							hubContainer.addTextDisplayComponents(currentText);
 
-							hubContainer.addSeparatorComponents(separator => separator.setSpacing(SeparatorSpacingSize.Small));
+							// check if db settings says showForecast is true for this guild
+							const showForecastRow = db_settings.prepare('SELECT showForecast FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+							if (showForecastRow && showForecastRow.showForecast) {
+								hubContainer.addSeparatorComponents(separator => separator.setSpacing(SeparatorSpacingSize.Small));
 
-							hubContainer.addTextDisplayComponents(forecastText);
+								hubContainer.addTextDisplayComponents(forecastText);
+							}
 
 							const guild = client.guilds.cache.get(process.env.SERVER_ID);
 							const channel = guild.channels.cache.get(process.env.CHANNEL_ID);
@@ -91,7 +98,7 @@ module.exports = {
 							channel.messages.fetch(process.env.MESSAGE_ID).then(msg => {
 								msg.edit({
 									embeds: [],
-									components: [hubContainer],
+									components: [hubContainer, buttonRow],
 									flags: MessageFlags.IsComponentsV2,
 								});
 							});
