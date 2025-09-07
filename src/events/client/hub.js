@@ -53,32 +53,37 @@ module.exports = {
 
 							const buttonRow = new ActionRowBuilder().addComponents(startShiftButton, endShiftButton, toggleForecastButton);
 
-							const hubContainer = [
-								new ContainerBuilder()
-									.addTextDisplayComponents(
-										new TextDisplayBuilder().setContent(
-											`# ${currentConditionEmote(isDayTime, nowCondition)} Weather for ${geoData.results[0].city}, ${geoData.results[0].state_code}\n-# ${
-												emotes.listArrow
-											} Conditions are ${nowCondition} as of <t:${weatherData.currently.time}:t>\n-# ${emotes.listArrow} Winds at ${Math.floor(
-												weatherData.currently.windSpeed,
-											)} mph, with gusts up to ${Math.floor(weatherData.currently.windGust)} mph`,
-										),
-									)
-									.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
-									.addTextDisplayComponents(
-										new TextDisplayBuilder().setContent(
-											`## Today's Forecast\n### Temperature: ${weatherData.currently.temperature.toFixed(1)}°F\n-# 🌡️ Feels Like: ${weatherData.currently.apparentTemperature.toFixed(1)}°F\n-# ${
-												emotes.tempHigh
-											} High of ${weatherData.daily.data[0].temperatureHigh.toFixed(1)}°F at <t:${weatherData.daily.data[0].temperatureHighTime}:t>\n-# ${
-												emotes.tempLow
-											} Low of ${weatherData.daily.data[0].temperatureLow.toFixed(1)}°F at <t:${weatherData.daily.data[0].temperatureLowTime}:t>\n### Daylight & Precipitation\n-# Chance of Rain: ${
-												weatherData.currently.precipProbability * 100
-											}%\n-# Sunrise: <t:${todaySunriseTime}:t> [<t:${todaySunriseTime}:R>]\n-# Sunset: <t:${todaySunsetTime}:t> [<t:${todaySunsetTime}:R>]`,
-										),
-									)
-									.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true))
-									.addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 3-Day Forecast\n ${forecastDay(1)}\n ${forecastDay(2)}\n ${forecastDay(3)}`)),
-							];
+							const hubContainer = new ContainerBuilder();
+
+							const headerText = new TextDisplayBuilder().setContent(
+								`# ${currentConditionEmote(isDayTime, nowCondition)} Weather for ${geoData.results[0].city}, ${geoData.results[0].state_code}\n-# ${
+									emotes.listArrow
+								} Conditions are ${nowCondition} as of <t:${weatherData.currently.time}:t>\n-# ${emotes.listArrow} Winds at ${Math.floor(
+									weatherData.currently.windSpeed,
+								)} mph, with gusts up to ${Math.floor(weatherData.currently.windGust)} mph`,
+							);
+
+							const currentText = new TextDisplayBuilder().setContent(
+								`## Today's Forecast\n### Temperature: ${weatherData.currently.temperature.toFixed(1)}°F\n-# 🌡️ Feels Like: ${weatherData.currently.apparentTemperature.toFixed(1)}°F\n-# ${
+									emotes.tempHigh
+								} High of ${weatherData.daily.data[0].temperatureHigh.toFixed(1)}°F at <t:${weatherData.daily.data[0].temperatureHighTime}:t>\n-# ${
+									emotes.tempLow
+								} Low of ${weatherData.daily.data[0].temperatureLow.toFixed(1)}°F at <t:${weatherData.daily.data[0].temperatureLowTime}:t>\n### Daylight & Precipitation\n-# Chance of Rain: ${
+									weatherData.currently.precipProbability * 100
+								}%\n-# Sunrise: <t:${todaySunriseTime}:t> [<t:${todaySunriseTime}:R>]\n-# Sunset: <t:${todaySunsetTime}:t> [<t:${todaySunsetTime}:R>]`,
+							);
+
+							const forecastText = new TextDisplayBuilder().setContent(`## 3-Day Forecast\n ${forecastDay(1)}\n ${forecastDay(2)}\n ${forecastDay(3)}`);
+
+							hubContainer.addTextDisplayComponents(headerText);
+
+							hubContainer.addSeparatorComponents(separator => separator.setSpacing(SeparatorSpacingSize.Small));
+
+							hubContainer.addTextDisplayComponents(currentText);
+
+							hubContainer.addSeparatorComponents(separator => separator.setSpacing(SeparatorSpacingSize.Small));
+
+							hubContainer.addTextDisplayComponents(forecastText);
 
 							const guild = client.guilds.cache.get(process.env.SERVER_ID);
 							const channel = guild.channels.cache.get(process.env.CHANNEL_ID);
@@ -86,7 +91,7 @@ module.exports = {
 							channel.messages.fetch(process.env.MESSAGE_ID).then(msg => {
 								msg.edit({
 									embeds: [],
-									components: [hubContainer[0]],
+									components: [hubContainer],
 									flags: MessageFlags.IsComponentsV2,
 								});
 							});
