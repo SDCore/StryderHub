@@ -34,7 +34,7 @@ module.exports = {
 
 				db_settings.prepare('INSERT OR REPLACE INTO settings (guild_id, showForecast) VALUES (?, ?)').run(process.env.SERVER_ID, newShowForecast);
 
-				interaction.reply({ content: '3-Day Forecast will Toggle Next Update', ephemeral: true, flags: MessageFlags.Ephemeral });
+				interaction.reply({ content: 'Toggled 3-Day Forecast', flags: MessageFlags.Ephemeral });
 			}
 
 			try {
