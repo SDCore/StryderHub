@@ -134,6 +134,17 @@ module.exports = {
 			setTimeout(updateHubData, delay);
 		}
 
+		// check if checkUpdate and showForecast are the same
+		// if not, update checkUpdate to be the same as showForecast
+		// and run updateHubData once to update the message
+		const settingsRow = db_settings.prepare('SELECT showForecast, checkUpdate FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+		if (settingsRow) {
+			if (settingsRow.showForecast !== settingsRow.checkUpdate) {
+				db_settings.prepare('UPDATE settings SET checkUpdate = ? WHERE guild_id = ?').run(settingsRow.showForecast, process.env.SERVER_ID);
+				updateHubData();
+			}
+		}
+
 		updateHubData();
 	},
 };
