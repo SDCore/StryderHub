@@ -3,5 +3,7 @@
 	"tempHigh": "<:weather_tempHigh:1411611365306798091>",
 	"tempLow": "<:weather_tempLow:1411611801157763123>",
 	"clearDay": "<a:weather_clearDay:1411607016765521960>",
-	"clearNight": "<a:weather_clearNight:1411607476511703111>"
+	"clearNight": "<a:weather_clearNight:1411607476511703111>",
+	"partlyCloudyDay": "<a:weather_PartlyCloudyDay:1415111835450871979>",
+	"partlyCloudyNight": "<a:weather_PartlyCloudyNight:1415114438805291049>"
 }

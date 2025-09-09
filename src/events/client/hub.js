@@ -128,11 +128,28 @@ module.exports = {
 						}
 					});
 			}
-
-			const newDate = new Date(); // allow for time passing
-			var delay = 60000 - (newDate % 60000); // exact ms to next minute interval
-			setTimeout(updateHubData, delay);
 		}
+
+		setInterval(() => {
+			const newDate = new Date();
+			const currentSecond = newDate.getSeconds();
+			const currentMinute = newDate.getMinutes();
+			const settingsRow = db_settings.prepare('SELECT showForecast, checkUpdate FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+
+			if (currentSecond === 0 && currentMinute % process.env.INTERVAL == 0) {
+				updateHubData();
+			}
+
+			if (settingsRow) {
+				if (settingsRow.showForecast !== settingsRow.checkUpdate) {
+					db_settings.prepare('UPDATE settings SET checkUpdate = ? WHERE guild_id = ?').run(settingsRow.showForecast, process.env.SERVER_ID);
+
+					updateHubData();
+
+					console.log(chalk.blue(`${chalk.bold('[BUTTON]')} 3-Day Forecast Toggled`));
+				}
+			}
+		}, 1000);
 
 		updateHubData();
 	},
