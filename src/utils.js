@@ -58,6 +58,8 @@ function currentConditionEmote(time, condition) {
 				return emotes.partlyCloudyDay;
 			case 'Mostly Cloudy':
 				return emotes.mostlyCloudyDay;
+			case 'Mostly Clear':
+				return emotes.mostlyClearDay;
 			default:
 				return emotes.clearDay;
 		}
@@ -69,6 +71,8 @@ function currentConditionEmote(time, condition) {
 			return emotes.partlyCloudyNight;
 		case 'Mostly Cloudy':
 			return emotes.mostlyCloudyNight;
+		case 'Mostly Clear':
+			return emotes.mostlyClearNight;
 		default:
 			return emotes.clearNight;
 	}
