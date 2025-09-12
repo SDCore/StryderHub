@@ -7,5 +7,7 @@
 	"partlyCloudyDay": "<a:weather_PartlyCloudyDay:1415111835450871979>",
 	"partlyCloudyNight": "<a:weather_PartlyCloudyNight:1415114438805291049>",
 	"mostlyCloudyDay": "<a:weather_MostlyCloudyDay:1415130896062873600>",
-	"mostlyCloudyNight": "<a:weather_MostlyCloudyNight:1415130908050325655>"
+	"mostlyCloudyNight": "<a:weather_MostlyCloudyNight:1415130908050325655>",
+	"mostlyClearDay": "<a:weather_MostlyClearDay:1415964365059919942>",
+	"mostlyClearNight": "<a:weather_MostlyClearNight:1415964394336030762>"
 }
