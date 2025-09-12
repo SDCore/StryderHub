@@ -1,6 +1,6 @@
 const chalk = require('chalk');
 const Database = require('better-sqlite3');
-const { MessageFlags, InteractionType } = require('discord.js');
+const { ModalBuilder, ActionRowBuilder, ComponentType, MessageFlags, InteractionType, TextInputStyle, TextInputBuilder } = require('discord.js');
 
 const db_settings = new Database(`${__dirname}/../../database/settings.sqlite`);
 
@@ -35,6 +35,18 @@ module.exports = {
 				db_settings.prepare('INSERT OR REPLACE INTO settings (guild_id, showForecast) VALUES (?, ?)').run(process.env.SERVER_ID, newShowForecast);
 
 				interaction.reply({ content: 'Toggled 3-Day Forecast', flags: MessageFlags.Ephemeral });
+			}
+
+			if (buttonID == 'settings') {
+				const settingsModal = new ModalBuilder().setCustomId('settingModal').setTitle('Stryder Hub Settings');
+
+				const locationInput = new TextInputBuilder().setCustomId('location').setLabel('Latitude, Longitude').setStyle(TextInputStyle.Short).setPlaceholder('00.0000, 00.0000').setRequired(false);
+
+				const locationActionRow = new ActionRowBuilder().addComponents(locationInput);
+
+				settingsModal.addComponents(locationActionRow);
+
+				await interaction.showModal(settingsModal);
 			}
 
 			try {

@@ -50,10 +50,11 @@ module.exports = {
 						}
 
 						const toggleForecastButton = new ButtonBuilder().setCustomId('toggleThreeDayForecast').setLabel('Toggle 3-Day Forecast').setStyle(ButtonStyle.Secondary);
+						const settingsButton = new ButtonBuilder().setCustomId('settings').setEmoji('⚙️').setStyle(ButtonStyle.Secondary);
 						// const startShiftButton = new ButtonBuilder().setCustomId('startShift').setLabel('+').setStyle(ButtonStyle.Success).setDisabled(true);
 						// const endShiftButton = new ButtonBuilder().setCustomId('endShift').setLabel('-').setStyle(ButtonStyle.Danger).setDisabled(true);
 
-						const buttonRow = new ActionRowBuilder().addComponents(toggleForecastButton);
+						const buttonRow = new ActionRowBuilder().addComponents(toggleForecastButton, settingsButton);
 
 						const hubContainer = new ContainerBuilder();
 
