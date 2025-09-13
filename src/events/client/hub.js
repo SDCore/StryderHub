@@ -49,12 +49,6 @@ module.exports = {
 							return forecastText;
 						}
 
-						const toggleForecastButton = new ButtonBuilder().setCustomId('toggleThreeDayForecast').setLabel('Toggle 3-Day Forecast').setStyle(ButtonStyle.Secondary);
-						// const startShiftButton = new ButtonBuilder().setCustomId('startShift').setLabel('+').setStyle(ButtonStyle.Success).setDisabled(true);
-						// const endShiftButton = new ButtonBuilder().setCustomId('endShift').setLabel('-').setStyle(ButtonStyle.Danger).setDisabled(true);
-
-						const buttonRow = new ActionRowBuilder().addComponents(toggleForecastButton);
-
 						const hubContainer = new ContainerBuilder();
 
 						const headerText = new TextDisplayBuilder().setContent(
@@ -83,11 +77,22 @@ module.exports = {
 
 						// check if db settings says showForecast is true for this guild
 						const showForecastRow = db_settings.prepare('SELECT showForecast FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+
 						if (showForecastRow && showForecastRow.showForecast) {
 							hubContainer.addSeparatorComponents(separator => separator.setSpacing(SeparatorSpacingSize.Small));
 
 							hubContainer.addTextDisplayComponents(forecastText);
+
+							var toggleEmote = emotes.buttonOn;
+						} else {
+							var toggleEmote = emotes.buttonOff;
 						}
+
+						const toggleForecastButton = new ButtonBuilder().setCustomId('toggleThreeDayForecast').setEmoji(toggleEmote).setLabel('Forecast').setStyle(ButtonStyle.Secondary);
+						// const startShiftButton = new ButtonBuilder().setCustomId('startShift').setLabel('+').setStyle(ButtonStyle.Success).setDisabled(true);
+						// const endShiftButton = new ButtonBuilder().setCustomId('endShift').setLabel('-').setStyle(ButtonStyle.Danger).setDisabled(true);
+
+						const buttonRow = new ActionRowBuilder().addComponents(toggleForecastButton);
 
 						const guild = client.guilds.cache.get(process.env.SERVER_ID);
 						const channel = guild.channels.cache.get(process.env.CHANNEL_ID);
