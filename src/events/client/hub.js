@@ -91,7 +91,7 @@ module.exports = {
 						}
 
 						if (APIDataRow && APIDataRow.showAPIData) {
-							const usage = apiData['ratelimit-limit'] - apiData['ratelimit-remaining'];
+							const usage = parseInt(apiData['ratelimit-limit']) - parseInt(apiData['ratelimit-remaining']);
 							const usagePercent = ((usage / apiData['ratelimit-limit']) * 100).toFixed(2);
 							const unixTime = Math.floor(Date.now() / 1000);
 							const resetTime = Math.floor(parseInt(apiData['ratelimit-reset']) + unixTime);
