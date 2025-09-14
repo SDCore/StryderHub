@@ -32,9 +32,20 @@ module.exports = {
 
 				const newShowForecast = showForecastRow ? (showForecastRow.showForecast ? 0 : 1) : 1;
 
-				db_settings.prepare('INSERT OR REPLACE INTO settings (guild_id, showForecast) VALUES (?, ?)').run(process.env.SERVER_ID, newShowForecast);
+				db_settings.prepare('UPDATE settings SET showForecast = ? WHERE guild_id = ?').run(newShowForecast, process.env.SERVER_ID);
 
 				interaction.reply({ content: 'Toggled 3-Day Forecast', flags: MessageFlags.Ephemeral });
+			}
+
+			if (buttonID == 'toggleAPIData') {
+				// toggle showAPIData in db
+				const showAPIDataRow = db_settings.prepare('SELECT showAPIData FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+
+				const newShowAPIData = showAPIDataRow ? (showAPIDataRow.showAPIData ? 0 : 1) : 1;
+
+				db_settings.prepare('UPDATE settings SET showAPIData = ? WHERE guild_id = ?').run(newShowAPIData, process.env.SERVER_ID);
+
+				interaction.reply({ content: 'Toggled API Data', flags: MessageFlags.Ephemeral });
 			}
 
 			try {

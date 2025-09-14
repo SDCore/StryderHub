@@ -33,9 +33,9 @@ client
 const db_settings = new Database(`${__dirname}/database/settings.sqlite`);
 
 db_settings.prepare('DROP TABLE IF EXISTS settings').run();
-db_settings.prepare('CREATE TABLE IF NOT EXISTS settings (guild_id TEXT, showForecast BOOL, checkUpdate BOOL, PRIMARY KEY(guild_id))').run();
+db_settings.prepare('CREATE TABLE IF NOT EXISTS settings (guild_id TEXT, showForecast BOOL, showForecastUpdate BOOL, showAPIData BOOL, showAPIDataUpdate BOOL, PRIMARY KEY(guild_id))').run();
 
 // insert default settings for guild if not present
-db_settings.prepare('INSERT OR IGNORE INTO settings (guild_id, showForecast, checkUpdate) VALUES (?, ?, ?)').run(process.env.SERVER_ID, 1, 1);
+db_settings.prepare('INSERT OR IGNORE INTO settings (guild_id, showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate) VALUES (?, ?, ?, ?, ?)').run(process.env.SERVER_ID, 1, 1, 1, 1);
 
 module.exports = { client };
