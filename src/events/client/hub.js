@@ -101,7 +101,7 @@ module.exports = {
 							const apiText = new TextDisplayBuilder().setContent(
 								[
 									`## Pirate Weather API`,
-									`${emotes.listArrow} Current Usage: ${parseInt(usage.toLocaleString())}/${parseInt(apiData['ratelimit-limit']).toLocaleString()} (${usagePercent}%)`,
+									`${emotes.listArrow} Current Usage: ${usage.toLocaleString()}/${parseInt(apiData['ratelimit-limit']).toLocaleString()} (${usagePercent}%)`,
 									`${emotes.listArrow} Usage Resets <t:${resetTime}:R>`,
 								].join('\n'),
 							);
