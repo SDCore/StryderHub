@@ -29,6 +29,7 @@ module.exports = {
 					axios.spread(async (...res) => {
 						const weatherData = res[0].data;
 						const geoData = res[1].data;
+						const apiData = res[0].headers;
 
 						const nowUnix = Math.floor(Date.now() / 1000);
 
@@ -67,8 +68,6 @@ module.exports = {
 							)}%\n-# Sunrise: <t:${todaySunriseTime}:t> [<t:${todaySunriseTime}:R>]\n-# Sunset: <t:${todaySunsetTime}:t> [<t:${todaySunsetTime}:R>]`,
 						);
 
-						const forecastText = new TextDisplayBuilder().setContent(`## 3-Day Forecast\n ${forecastDay(1)}\n ${forecastDay(2)}\n ${forecastDay(3)}`);
-
 						hubContainer.addTextDisplayComponents(headerText);
 
 						hubContainer.addSeparatorComponents(separator => separator.setSpacing(SeparatorSpacingSize.Small));
@@ -77,22 +76,49 @@ module.exports = {
 
 						// check if db settings says showForecast is true for this guild
 						const showForecastRow = db_settings.prepare('SELECT showForecast FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+						const APIDataRow = db_settings.prepare('SELECT showAPIData FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 
 						if (showForecastRow && showForecastRow.showForecast) {
+							const forecastText = new TextDisplayBuilder().setContent(`## 3-Day Forecast\n ${forecastDay(1)}\n ${forecastDay(2)}\n ${forecastDay(3)}`);
+
 							hubContainer.addSeparatorComponents(separator => separator.setSpacing(SeparatorSpacingSize.Small));
 
 							hubContainer.addTextDisplayComponents(forecastText);
 
-							var toggleEmote = emotes.buttonOn;
+							var forecastButtonEmote = emotes.buttonOn;
 						} else {
-							var toggleEmote = emotes.buttonOff;
+							var forecastButtonEmote = emotes.buttonOff;
 						}
 
-						const toggleForecastButton = new ButtonBuilder().setCustomId('toggleThreeDayForecast').setEmoji(toggleEmote).setLabel('Forecast').setStyle(ButtonStyle.Secondary);
+						if (APIDataRow && APIDataRow.showAPIData) {
+							const usage = apiData['ratelimit-limit'] - apiData['ratelimit-remaining'];
+							const usagePercent = ((usage / apiData['ratelimit-limit']) * 100).toFixed(2);
+							const unixTime = Math.floor(Date.now() / 1000);
+							const resetTime = Math.floor(parseInt(apiData['ratelimit-reset']) + unixTime);
+
+							hubContainer.addSeparatorComponents(separator => separator.setSpacing(SeparatorSpacingSize.Small));
+
+							const apiText = new TextDisplayBuilder().setContent(
+								[
+									`## Pirate Weather API`,
+									`${emotes.listArrow} Current Usage: ${parseInt(usage.toLocaleString())}/${parseInt(apiData['ratelimit-limit']).toLocaleString()} (${usagePercent}%)`,
+									`${emotes.listArrow} Usage Resets <t:${resetTime}:R>`,
+								].join('\n'),
+							);
+
+							hubContainer.addTextDisplayComponents(apiText);
+
+							var apiDataButtonEmote = emotes.buttonOn;
+						} else {
+							var apiDataButtonEmote = emotes.buttonOff;
+						}
+
+						const toggleForecastButton = new ButtonBuilder().setCustomId('toggleThreeDayForecast').setEmoji(forecastButtonEmote).setLabel('Forecast').setStyle(ButtonStyle.Secondary);
+						const toggleAPIDataButton = new ButtonBuilder().setCustomId('toggleAPIData').setEmoji(apiDataButtonEmote).setLabel('API Data').setStyle(ButtonStyle.Secondary);
 						// const startShiftButton = new ButtonBuilder().setCustomId('startShift').setLabel('+').setStyle(ButtonStyle.Success).setDisabled(true);
 						// const endShiftButton = new ButtonBuilder().setCustomId('endShift').setLabel('-').setStyle(ButtonStyle.Danger).setDisabled(true);
 
-						const buttonRow = new ActionRowBuilder().addComponents(toggleForecastButton);
+						const buttonRow = new ActionRowBuilder().addComponents(toggleForecastButton, toggleAPIDataButton);
 
 						const guild = client.guilds.cache.get(process.env.SERVER_ID);
 						const channel = guild.channels.cache.get(process.env.CHANNEL_ID);
@@ -135,19 +161,27 @@ module.exports = {
 			const newDate = new Date();
 			const currentSecond = newDate.getSeconds();
 			const currentMinute = newDate.getMinutes();
-			const settingsRow = db_settings.prepare('SELECT showForecast, checkUpdate FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+			const settingsRow = db_settings.prepare('SELECT showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 
 			if (currentSecond === 0 && currentMinute % process.env.INTERVAL == 0) {
 				updateHubData();
 			}
 
 			if (settingsRow) {
-				if (settingsRow.showForecast !== settingsRow.checkUpdate) {
-					db_settings.prepare('UPDATE settings SET checkUpdate = ? WHERE guild_id = ?').run(settingsRow.showForecast, process.env.SERVER_ID);
+				if (settingsRow.showForecast !== settingsRow.showForecastUpdate) {
+					db_settings.prepare('UPDATE settings SET showForecastUpdate = ? WHERE guild_id = ?').run(settingsRow.showForecast, process.env.SERVER_ID);
 
 					updateHubData();
 
 					console.log(chalk.blue(`${chalk.bold('[BUTTON]')} 3-Day Forecast Toggled`));
+				}
+
+				if (settingsRow.showAPIData !== settingsRow.showAPIDataUpdate) {
+					db_settings.prepare('UPDATE settings SET showAPIDataUpdate = ? WHERE guild_id = ?').run(settingsRow.showAPIData, process.env.SERVER_ID);
+
+					updateHubData();
+
+					console.log(chalk.blue(`${chalk.bold('[BUTTON]')} API Data Toggled`));
 				}
 			}
 		}, 1000);
