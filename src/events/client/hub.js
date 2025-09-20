@@ -43,11 +43,11 @@ module.exports = {
 						// TODO: Shift Tracking
 
 						function forecastDay(day) {
-							const forecastText = `**<t:${weatherData.daily.data[day].time}:D>** (🌧️ ${weatherData.daily.data[day].precipProbability.toFixed(1) * 100}%)\n${emotes.tempHigh} ${weatherData.daily.data[
+							const forecastText = `**<t:${weatherData.daily.data[day].time}:D>** (🌧️ ${weatherData.daily.data[day].precipProbability.toFixed(1) * 100}%)\n-# ${emotes.tempHigh} ${weatherData.daily.data[
 								day
-							].temperatureHigh.toFixed(1)}°F / ${emotes.tempLow} ${weatherData.daily.data[day].temperatureLow.toFixed(1)}°F\n☀️ <t:${weatherData.daily.data[day].sunriseTime}:t> / 🌕 <t:${
-								weatherData.daily.data[day].sunsetTime
-							}:t>\n`;
+							].temperatureHigh.toFixed(1)}°F / ${emotes.tempLow} ${weatherData.daily.data[day].temperatureLow.toFixed(1)}°F\n-# ${emotes.sunrise} <t:${weatherData.daily.data[day].sunriseTime}:t> / ${
+								emotes.sunset
+							} <t:${weatherData.daily.data[day].sunsetTime}:t>\n`;
 
 							return forecastText;
 						}
