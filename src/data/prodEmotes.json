@@ -16,5 +16,6 @@
 	"mostlyClearNight": "<a:weather_MostlyClearNight:1415964735920144466>",
 	"lightRain": "<a:weather_LightRain:1419088151531618478>",
 	"rain": "<a:weather_Rain:1419088186839404554>",
-	"heavyRain": "<a:weather_HeavyRain:1419088210012672141>"
+	"heavyRain": "<a:weather_HeavyRain:1419088210012672141>",
+	"rainWind": "<a:weather_RainWind:1419097492565528636>"
 }
