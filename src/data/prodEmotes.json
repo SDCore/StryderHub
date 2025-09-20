@@ -13,5 +13,8 @@
 	"mostlyCloudyDay": "<a:weather_MostlyCloudyDay:1415131235725869136>",
 	"mostlyCloudyNight": "<a:weather_MostlyCloudyNight:1415131246480330783>",
 	"mostlyClearDay": "<a:weather_MostlyClearDay:1415964725652754513>",
-	"mostlyClearNight": "<a:weather_MostlyClearNight:1415964735920144466>"
+	"mostlyClearNight": "<a:weather_MostlyClearNight:1415964735920144466>",
+	"lightRain": "<a:weather_LightRain:1419088151531618478>",
+	"rain": "<a:weather_Rain:1419088186839404554>",
+	"heavyRain": "<a:weather_HeavyRain:1419088210012672141>"
 }
