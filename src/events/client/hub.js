@@ -61,7 +61,7 @@ module.exports = {
 						);
 
 						const currentText = new TextDisplayBuilder().setContent(
-							`## Today's Forecast\n### Temperature: ${weatherData.currently.temperature.toFixed(1)}°F\n-# 🌡️ Feels Like: ${weatherData.currently.apparentTemperature.toFixed(1)}°F\n-# ${
+							`### Current Temperature: ${weatherData.currently.temperature.toFixed(1)}°F\n-# 🌡️ Feels Like: ${weatherData.currently.apparentTemperature.toFixed(1)}°F\n-# ${
 								emotes.tempHigh
 							} High of ${weatherData.daily.data[0].temperatureHigh.toFixed(1)}°F at <t:${weatherData.daily.data[0].temperatureHighTime}:t>\n-# ${
 								emotes.tempLow
