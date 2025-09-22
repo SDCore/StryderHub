@@ -65,9 +65,9 @@ module.exports = {
 								emotes.tempHigh
 							} High of ${weatherData.daily.data[0].temperatureHigh.toFixed(1)}°F at <t:${weatherData.daily.data[0].temperatureHighTime}:t>\n-# ${
 								emotes.tempLow
-							} Low of ${weatherData.daily.data[0].temperatureLow.toFixed(1)}°F at <t:${weatherData.daily.data[0].temperatureLowTime}:t>\n### Daylight & Precipitation\n-# Chance of Rain: ${Math.floor(
+							} Low of ${weatherData.daily.data[0].temperatureLow.toFixed(1)}°F at <t:${weatherData.daily.data[0].temperatureLowTime}:t>\n### Daylight & Precipitation\n-# 🌧️ Chance of Rain: ${Math.floor(
 								weatherData.currently.precipProbability * 100,
-							)}%\n-# Sunrise: <t:${todaySunriseTime}:t> [<t:${todaySunriseTime}:R>]\n-# Sunset: <t:${todaySunsetTime}:t> [<t:${todaySunsetTime}:R>]`,
+							)}%\n-# ${emotes.sunrise} Sunrise: <t:${todaySunriseTime}:t> [<t:${todaySunriseTime}:R>]\n-# ${emotes.sunset} Sunset: <t:${todaySunsetTime}:t> [<t:${todaySunsetTime}:R>]`,
 						);
 
 						hubContainer.addTextDisplayComponents(headerText);
