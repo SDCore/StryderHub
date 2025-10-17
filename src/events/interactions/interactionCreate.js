@@ -1,6 +1,6 @@
 const chalk = require('chalk');
 const Database = require('better-sqlite3');
-const { ModalBuilder, ActionRowBuilder, ComponentType, MessageFlags, InteractionType, TextInputStyle, TextInputBuilder } = require('discord.js');
+const { ModalBuilder, MessageFlags, LabelBuilder, InteractionType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
 
 const db_settings = new Database(`${__dirname}/../../database/settings.sqlite`);
 
@@ -27,7 +27,6 @@ module.exports = {
 			if (!buttonID) return;
 
 			if (buttonID == 'toggleThreeDayForecast') {
-				// toggle showForecast in db
 				const showForecastRow = db_settings.prepare('SELECT showForecast FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 
 				const newShowForecast = showForecastRow ? (showForecastRow.showForecast ? 0 : 1) : 1;
@@ -38,7 +37,6 @@ module.exports = {
 			}
 
 			if (buttonID == 'toggleAPIData') {
-				// toggle showAPIData in db
 				const showAPIDataRow = db_settings.prepare('SELECT showAPIData FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 
 				const newShowAPIData = showAPIDataRow ? (showAPIDataRow.showAPIData ? 0 : 1) : 1;
@@ -49,13 +47,24 @@ module.exports = {
 			}
 
 			if (buttonID == 'settings') {
-				const settingsModal = new ModalBuilder().setCustomId('settingModal').setTitle('Stryder Hub Settings');
+				const settingsModal = new ModalBuilder().setCustomId('settingsModal').setTitle('Stryder Hub Settings');
 
-				const locationInput = new TextInputBuilder().setCustomId('location').setLabel('Latitude, Longitude').setStyle(TextInputStyle.Short).setPlaceholder('00.0000, 00.0000').setRequired(false);
+				const locationSelect = new LabelBuilder()
+					.setLabel('Location')
+					.setStringSelectMenuComponent(
+						new StringSelectMenuBuilder()
+							.setCustomId('locationSelect')
+							.setPlaceholder('Select a location')
+							.addOptions(
+								new StringSelectMenuOptionBuilder().setLabel('Home').setValue('home').setDescription('Mundelein, IL').setDefault(true),
+								new StringSelectMenuOptionBuilder().setLabel('Chicago').setValue('chicago').setDescription('Chicago, IL'),
+								new StringSelectMenuOptionBuilder().setLabel('New York').setValue('new_york').setDescription('New York, NY'),
+							)
+							.setMinValues(1)
+							.setMaxValues(1),
+					);
 
-				const locationActionRow = new ActionRowBuilder().addComponents(locationInput);
-
-				settingsModal.addComponents(locationActionRow);
+				settingsModal.addLabelComponents(locationSelect);
 
 				await interaction.showModal(settingsModal);
 			}
@@ -65,6 +74,14 @@ module.exports = {
 			} catch (error) {
 				console.log(chalk.red(`${chalk.bold('[BUTTON]')} ${error}`));
 			}
+		}
+
+		if (interaction.customId == 'settingsModal') {
+			const location = interaction.fields.getStringSelectValues('locationSelect');
+
+			db_settings.prepare('UPDATE settings SET location = ? WHERE guild_id = ?').run(location[0], process.env.SERVER_ID);
+
+			interaction.reply({ content: `Updated location to ${location}!`, flags: MessageFlags.Ephemeral });
 		}
 	},
 };

@@ -20,8 +20,19 @@ module.exports = {
 			const now = Date.now();
 			const minute = new Date(now).getMinutes();
 
-			const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${process.env.WEATHER_API_KEY}/${process.env.WEATHER_LAT},${process.env.WEATHER_LONG}`);
-			const geoURL = axios.get(`https://api.geoapify.com/v1/geocode/search?text=${process.env.WEATHER_LAT},${process.env.WEATHER_LONG}&lang=en&limit=1&format=json&apiKey=${process.env.GEO_API_KEY}`);
+			const showForecastRow = db_settings.prepare('SELECT showForecast FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+			const APIDataRow = db_settings.prepare('SELECT showAPIData FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+			const locationRow = db_settings.prepare('SELECT location FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+
+			const location = locationRow.location;
+
+			const locations = require(`../../data/locations.json`);
+
+			let lat = locations[location].latitude;
+			let long = locations[location].longitude;
+
+			const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${process.env.WEATHER_API_KEY}/${lat},${long}`);
+			const geoURL = axios.get(`https://api.geoapify.com/v1/geocode/search?text=${lat},${long}&lang=en&limit=1&format=json&apiKey=${process.env.GEO_API_KEY}`);
 
 			await axios
 				.all([weatherURL, geoURL])
@@ -76,10 +87,6 @@ module.exports = {
 
 						hubContainer.addTextDisplayComponents(currentText);
 
-						// check if db settings says showForecast is true for this guild
-						const showForecastRow = db_settings.prepare('SELECT showForecast FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
-						const APIDataRow = db_settings.prepare('SELECT showAPIData FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
-
 						if (showForecastRow && showForecastRow.showForecast) {
 							const forecastText = new TextDisplayBuilder().setContent(`## 3-Day Forecast\n ${forecastDay(1)}\n ${forecastDay(2)}\n ${forecastDay(3)}`);
 
@@ -117,11 +124,11 @@ module.exports = {
 
 						const toggleForecastButton = new ButtonBuilder().setCustomId('toggleThreeDayForecast').setEmoji(forecastButtonEmote).setLabel('Forecast').setStyle(ButtonStyle.Secondary);
 						const toggleAPIDataButton = new ButtonBuilder().setCustomId('toggleAPIData').setEmoji(apiDataButtonEmote).setLabel('API Data').setStyle(ButtonStyle.Secondary);
-						// const settingsButton = new ButtonBuilder().setCustomId('settings').setEmoji('⚙️').setStyle(ButtonStyle.Secondary);
+						const settingsButton = new ButtonBuilder().setCustomId('settings').setEmoji('⚙️').setStyle(ButtonStyle.Secondary);
 						// const startShiftButton = new ButtonBuilder().setCustomId('startShift').setLabel('+').setStyle(ButtonStyle.Success).setDisabled(true);
 						// const endShiftButton = new ButtonBuilder().setCustomId('endShift').setLabel('-').setStyle(ButtonStyle.Danger).setDisabled(true);
 
-						const buttonRow = new ActionRowBuilder().addComponents(toggleForecastButton, toggleAPIDataButton);
+						const buttonRow = new ActionRowBuilder().addComponents(toggleForecastButton, toggleAPIDataButton, settingsButton);
 
 						const guild = client.guilds.cache.get(process.env.SERVER_ID);
 						const channel = guild.channels.cache.get(process.env.CHANNEL_ID);
@@ -164,7 +171,7 @@ module.exports = {
 			const newDate = new Date();
 			const currentSecond = newDate.getSeconds();
 			const currentMinute = newDate.getMinutes();
-			const settingsRow = db_settings.prepare('SELECT showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+			const settingsRow = db_settings.prepare('SELECT showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate, location, locationUpdate FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 
 			if (currentSecond === 0 && currentMinute % process.env.INTERVAL == 0) {
 				updateHubData();
@@ -185,6 +192,14 @@ module.exports = {
 					updateHubData();
 
 					console.log(chalk.blue(`${chalk.bold('[BUTTON]')} API Data Toggled`));
+				}
+
+				if (settingsRow.location !== settingsRow.locationUpdate) {
+					db_settings.prepare('UPDATE settings SET locationUpdate = ? WHERE guild_id = ?').run(settingsRow.location, process.env.SERVER_ID);
+
+					updateHubData();
+
+					console.log(chalk.blue(`${chalk.bold('[MODAL]')} Location Updated`));
 				}
 			}
 		}, 1000);
