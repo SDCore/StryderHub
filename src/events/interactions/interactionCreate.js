@@ -27,7 +27,6 @@ module.exports = {
 			if (!buttonID) return;
 
 			if (buttonID == 'toggleThreeDayForecast') {
-				// toggle showForecast in db
 				const showForecastRow = db_settings.prepare('SELECT showForecast FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 
 				const newShowForecast = showForecastRow ? (showForecastRow.showForecast ? 0 : 1) : 1;
@@ -38,7 +37,6 @@ module.exports = {
 			}
 
 			if (buttonID == 'toggleAPIData') {
-				// toggle showAPIData in db
 				const showAPIDataRow = db_settings.prepare('SELECT showAPIData FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 
 				const newShowAPIData = showAPIDataRow ? (showAPIDataRow.showAPIData ? 0 : 1) : 1;
@@ -53,7 +51,6 @@ module.exports = {
 
 				const locationSelect = new LabelBuilder()
 					.setLabel('Location')
-					.setDescription('Location for Weather Data')
 					.setStringSelectMenuComponent(
 						new StringSelectMenuBuilder()
 							.setCustomId('locationSelect')
@@ -77,6 +74,14 @@ module.exports = {
 			} catch (error) {
 				console.log(chalk.red(`${chalk.bold('[BUTTON]')} ${error}`));
 			}
+		}
+
+		if (interaction.customId == 'settingsModal') {
+			const location = interaction.fields.getStringSelectValues('locationSelect');
+
+			db_settings.prepare('UPDATE settings SET location = ? WHERE guild_id = ?').run(location[0], process.env.SERVER_ID);
+
+			interaction.reply({ content: `Updated location to ${location}!`, flags: MessageFlags.Ephemeral });
 		}
 	},
 };

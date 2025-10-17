@@ -1,0 +1,14 @@
+{
+	"home": {
+		"latitude": 42.263,
+		"longitude": -88.0039
+	},
+	"chicago": {
+		"latitude": 41.8781,
+		"longitude": -87.6298
+	},
+	"new_york": {
+		"latitude": 40.7128,
+		"longitude": -74.006
+	}
+}
