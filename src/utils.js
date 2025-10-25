@@ -62,6 +62,8 @@ function currentConditionEmote(time, condition) {
 				return emotes.mostlyClearDay;
 			case 'Light Rain':
 				return emotes.lightRain;
+			case 'Drizzle':
+				return emotes.lightRain;
 			case 'Rain':
 				return emotes.rain;
 			case 'Heavy Rain':
@@ -90,6 +92,8 @@ function currentConditionEmote(time, condition) {
 		case 'Mostly Clear':
 			return emotes.mostlyClearNight;
 		case 'Light Rain':
+			return emotes.lightRain;
+		case 'Drizzle':
 			return emotes.lightRain;
 		case 'Rain':
 			return emotes.rain;
