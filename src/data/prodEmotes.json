@@ -8,6 +8,8 @@
 	"sunset": "<:weather_Sunset:1418752015978332284>",
 	"clearDay": "<a:weather_clearDay:1411607685178195989>",
 	"clearNight": "<a:weather_clearNight:1411607696851075142>",
+	"breezyDay": "<a:weather_ClearWindDay:1435782207456149677>",
+	"breezyNight": "<a:weather_ClearWindNight:1435782231065890886>",
 	"partlyCloudyDay": "<a:weather_PartlyCloudyDay:1415114602773086228>",
 	"partlyCloudyNight": "<a:weather_PartlyCloudyNight:1415114611753091234>",
 	"mostlyCloudyDay": "<a:weather_MostlyCloudyDay:1415131235725869136>",
