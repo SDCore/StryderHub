@@ -1,6 +1,7 @@
 const chalk = require('chalk');
 const axios = require('axios');
 const Database = require('better-sqlite3');
+const { version } = require('../../../package.json');
 const { emoteFile, conditionText, currentConditionEmote } = require('../../utils.js');
 const { ButtonStyle, MessageFlags, ButtonBuilder, ActionRowBuilder, ContainerBuilder, TextDisplayBuilder, SeparatorSpacingSize } = require('discord.js');
 
@@ -64,6 +65,10 @@ module.exports = {
 						}
 
 						const hubContainer = new ContainerBuilder();
+
+						const versionText = new TextDisplayBuilder().setContent(`-# v${version}`);
+
+						hubContainer.addTextDisplayComponents(versionText);
 
 						const headerText = new TextDisplayBuilder().setContent(
 							`# ${currentConditionEmote(isDayTime, nowCondition)} Weather for ${geoData.results[0].city}, ${geoData.results[0].state_code}\n-# ${emotes.listArrow} Conditions are ${nowCondition} as of <t:${
