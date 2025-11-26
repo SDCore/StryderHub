@@ -21,5 +21,6 @@
 	"heavyRain": "<a:weather_HeavyRain:1419087816465318078>",
 	"rainWind": "<a:weather_RainWind:1419097013408239636>",
 	"partlyCloudyWindyDay": "<a:weather_PartlyCloudyWindyDay:1441185845485899776>",
-	"partlyCloudyWindyNight": "<a:weather_PartlyCloudyWindyNight:1441185866683912473>"
+	"partlyCloudyWindyNight": "<a:weather_PartlyCloudyWindyNight:1441185866683912473>",
+	"flurries": "<a:weather_Flurries:1443338524492431361>"
 }
