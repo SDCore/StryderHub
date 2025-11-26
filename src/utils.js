@@ -1,3 +1,5 @@
+const { DateTime } = require('luxon');
+
 const emotes = require(`./data/${emoteFile(process.env.DEBUG)}Emotes.json`);
 
 function emoteFile(debug) {
@@ -154,4 +156,21 @@ function currentConditionEmote(time, condition) {
 	}
 }
 
-module.exports = { emoteFile, conditionText, currentConditionEmote };
+function forecastDay(day, weather) {
+	const date = weather.daily.data[day].time;
+	const formattedDate = DateTime.fromSeconds(date).toFormat('MM-dd');
+
+	const dateList = require('./data/dates.json');
+
+	const importantDateText = formattedDate in dateList ? `\n-# ***${dateList[formattedDate].emote} ${dateList[formattedDate].name}***\n` : `\n`;
+
+	const forecastText = `**<t:${weather.daily.data[day].time}:D>** (🌧️ ${weather.daily.data[day].precipProbability.toFixed(1) * 100}%)${importantDateText}-# ${emotes.tempHigh} ${weather.daily.data[
+		day
+	].temperatureHigh.toFixed(1)}°F / ${emotes.tempLow} ${weather.daily.data[day].temperatureLow.toFixed(1)}°F\n-# ${emotes.sunrise} <t:${weather.daily.data[day].sunriseTime}:t> / ${emotes.sunset} <t:${
+		weather.daily.data[day].sunsetTime
+	}:t>\n`;
+
+	return forecastText;
+}
+
+module.exports = { emoteFile, forecastDay, conditionText, currentConditionEmote };

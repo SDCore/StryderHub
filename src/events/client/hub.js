@@ -1,12 +1,14 @@
 const chalk = require('chalk');
 const axios = require('axios');
+const { DateTime } = require('luxon');
 const Database = require('better-sqlite3');
 const { version } = require('../../../package.json');
-const { emoteFile, conditionText, currentConditionEmote } = require('../../utils.js');
+const { emoteFile, forecastDay, conditionText, currentConditionEmote } = require('../../utils.js');
 const { ButtonStyle, MessageFlags, ButtonBuilder, ActionRowBuilder, ContainerBuilder, TextDisplayBuilder, SeparatorSpacingSize } = require('discord.js');
 
 const db_settings = new Database(`${__dirname}/../../database/settings.sqlite`);
 
+const importantDates = require(`../../data/dates.json`);
 const emotes = require(`../../data/${emoteFile(process.env.DEBUG)}Emotes.json`);
 
 const wait = n => new Promise(resolve => setTimeout(resolve, n));
@@ -18,9 +20,6 @@ module.exports = {
 		if (process.env.ENABLED == 'false') return;
 
 		async function updateHubData() {
-			const now = Date.now();
-			const minute = new Date(now).getMinutes();
-
 			const showForecastRow = db_settings.prepare('SELECT showForecast FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 			const APIDataRow = db_settings.prepare('SELECT showAPIData FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 			const locationRow = db_settings.prepare('SELECT location FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
@@ -54,26 +53,23 @@ module.exports = {
 						// TODO: Reminders
 						// TODO: Shift Tracking
 
-						function forecastDay(day) {
-							const forecastText = `**<t:${weatherData.daily.data[day].time}:D>** (🌧️ ${weatherData.daily.data[day].precipProbability.toFixed(1) * 100}%)\n-# ${emotes.tempHigh} ${weatherData.daily.data[
-								day
-							].temperatureHigh.toFixed(1)}°F / ${emotes.tempLow} ${weatherData.daily.data[day].temperatureLow.toFixed(1)}°F\n-# ${emotes.sunrise} <t:${weatherData.daily.data[day].sunriseTime}:t> / ${
-								emotes.sunset
-							} <t:${weatherData.daily.data[day].sunsetTime}:t>\n`;
-
-							return forecastText;
-						}
-
 						const hubContainer = new ContainerBuilder();
 
 						const versionText = new TextDisplayBuilder().setContent(`-# **v${version}**`);
 
 						hubContainer.addTextDisplayComponents(versionText);
 
+						const date = weatherData.daily.data[0].time;
+						const formattedDate = DateTime.fromSeconds(date).toFormat('MM-dd');
+
+						const importantDateText = formattedDate in importantDates ? `\n-# ${emotes.listArrow} ***Today is ${importantDates[formattedDate].name}! ${importantDates[formattedDate].emote}***\n` : `\n`;
+
 						const headerText = new TextDisplayBuilder().setContent(
-							`# ${currentConditionEmote(isDayTime, nowCondition)} Weather for ${geoData.results[0].city}, ${geoData.results[0].state_code}\n-# ${emotes.listArrow} Conditions are ${nowCondition} as of <t:${
-								weatherData.currently.time
-							}:t>\n-# ${emotes.listArrow} Winds at ${Math.floor(weatherData.currently.windSpeed)} mph, with gusts up to ${Math.floor(weatherData.currently.windGust)} mph`,
+							`# ${currentConditionEmote(isDayTime, nowCondition)} Weather for ${geoData.results[0].city}, ${geoData.results[0].state_code}${importantDateText}-# ${
+								emotes.listArrow
+							} Conditions are ${nowCondition} as of <t:${weatherData.currently.time}:t>\n-# ${emotes.listArrow} Winds at ${Math.floor(weatherData.currently.windSpeed)} mph, with gusts up to ${Math.floor(
+								weatherData.currently.windGust,
+							)} mph`,
 						);
 
 						const currentText = new TextDisplayBuilder().setContent(
@@ -93,7 +89,7 @@ module.exports = {
 						hubContainer.addTextDisplayComponents(currentText);
 
 						if (showForecastRow && showForecastRow.showForecast) {
-							const forecastText = new TextDisplayBuilder().setContent(`## 3-Day Forecast\n ${forecastDay(1)}\n ${forecastDay(2)}\n ${forecastDay(3)}`);
+							const forecastText = new TextDisplayBuilder().setContent(`## 3-Day Forecast\n ${forecastDay(1, weatherData)}\n ${forecastDay(2, weatherData)}\n ${forecastDay(3, weatherData)}`);
 
 							hubContainer.addSeparatorComponents(separator => separator.setSpacing(SeparatorSpacingSize.Small));
 

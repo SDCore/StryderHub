@@ -1,0 +1,54 @@
+{
+	"01-28": {
+		"name": "Nalas Birthday",
+		"emote": "🎂"
+	},
+	"03-09": {
+		"name": "Moms Birthday",
+		"emote": "🎂"
+	},
+	"03-12": {
+		"name": "Grandpas Birthday",
+		"emote": "🎂"
+	},
+	"03-24": {
+		"name": "Dads Birthday",
+		"emote": "🎂"
+	},
+	"05-14": {
+		"name": "Birthday",
+		"emote": "🎂"
+	},
+	"11-27": {
+		"name": "Thanksgiving",
+		"emote": "🦃"
+	},
+	"11-28": {
+		"name": "Black Friday",
+		"emote": "🛍️"
+	},
+	"12-07": {
+		"name": "Besties Birthday",
+		"emote": "🎂"
+	},
+	"12-24": {
+		"name": "Christmas Eve",
+		"emote": "🎅"
+	},
+	"12-25": {
+		"name": "Christmas",
+		"emote": "🎄"
+	},
+	"12-29": {
+		"name": "Ladys Birthday",
+		"emote": "🎂"
+	},
+	"12-31": {
+		"name": "New Year's Eve",
+		"emote": "🥂"
+	},
+	"01-01": {
+		"name": "New Year's Day",
+		"emote": "🎉"
+	}
+}
