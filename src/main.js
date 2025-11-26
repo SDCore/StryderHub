@@ -4,7 +4,9 @@ const Database = require('better-sqlite3');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Guilds, GuildMembers, GuildMessages, GuildPresences } = GatewayIntentBits;
 
-dotenv.config();
+dotenv.config({ quiet: true });
+
+process.env.TZ = 'America/Chicago';
 
 const { loadEvents } = require('./loadEvents.js');
 
