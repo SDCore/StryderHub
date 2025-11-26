@@ -66,7 +66,7 @@ module.exports = {
 
 						const hubContainer = new ContainerBuilder();
 
-						const versionText = new TextDisplayBuilder().setContent(`-# v${version}`);
+						const versionText = new TextDisplayBuilder().setContent(`-# **v${version}**`);
 
 						hubContainer.addTextDisplayComponents(versionText);
 

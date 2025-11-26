@@ -88,6 +88,14 @@ function currentConditionEmote(time, condition) {
 				return emotes.mostlyCloudyDay;
 			case 'Windy and Partly Cloudy':
 				return emotes.partlyCloudyWindyDay;
+			case 'Breezy and Overcast':
+				return emotes.partlyCloudyWindyDay;
+			case 'Windy and Overcast':
+				return emotes.partlyCloudyWindyDay;
+			case 'Flurries and Breezy':
+				return emotes.flurries;
+			case 'Flurries and Windy':
+				return emotes.flurries;
 			default:
 				return emotes.clearDay;
 		}
@@ -129,6 +137,14 @@ function currentConditionEmote(time, condition) {
 			return emotes.mostlyCloudyNight;
 		case 'Windy and Partly Cloudy':
 			return emotes.partlyCloudyWindyNight;
+		case 'Breezy and Overcast':
+			return emotes.partlyCloudyWindyNight;
+		case 'Windy and Overcast':
+			return emotes.partlyCloudyWindyNight;
+		case 'Flurries and Breezy':
+			return emotes.flurries;
+		case 'Flurries and Windy':
+			return emotes.flurries;
 		default:
 			return emotes.clearNight;
 	}
