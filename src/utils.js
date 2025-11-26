@@ -92,6 +92,8 @@ function currentConditionEmote(time, condition) {
 				return emotes.partlyCloudyWindyDay;
 			case 'Windy and Overcast':
 				return emotes.partlyCloudyWindyDay;
+			case 'Windy and Mostly Cloudy':
+				return emotes.partlyCloudyWindyDay;
 			case 'Flurries and Breezy':
 				return emotes.flurries;
 			case 'Flurries and Windy':
@@ -140,6 +142,8 @@ function currentConditionEmote(time, condition) {
 		case 'Breezy and Overcast':
 			return emotes.partlyCloudyWindyNight;
 		case 'Windy and Overcast':
+			return emotes.partlyCloudyWindyNight;
+		case 'Windy and Mostly Cloudy':
 			return emotes.partlyCloudyWindyNight;
 		case 'Flurries and Breezy':
 			return emotes.flurries;
