@@ -95,7 +95,7 @@ module.exports = {
 
 						if (showForecastRow && showForecastRow.showForecast) {
 							const forecastText = new TextDisplayBuilder().setContent(
-								`## 3-Day Forecast\n ${forecastDay(1, weatherData, getUnits.temperature)}\n ${forecastDay(2, weatherData, getUnits.temperature)}\n ${forecastDay(3, weatherData, getUnits.temperature)}`,
+								`## 3-Day Forecast\n${forecastDay(1, weatherData, getUnits.temperature)}\n${forecastDay(2, weatherData, getUnits.temperature)}\n${forecastDay(3, weatherData, getUnits.temperature)}`,
 							);
 
 							hubContainer.addSeparatorComponents(separator => separator.setSpacing(SeparatorSpacingSize.Small));
