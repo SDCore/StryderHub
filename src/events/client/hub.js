@@ -3,7 +3,7 @@ const axios = require('axios');
 const { DateTime } = require('luxon');
 const Database = require('better-sqlite3');
 const { version } = require('../../../package.json');
-const { emoteFile, forecastDay, conditionText, currentConditionEmote } = require('../../utils.js');
+const { emoteFile, checkUnits, forecastDay, conditionText, currentConditionEmote } = require('../../utils.js');
 const { ButtonStyle, MessageFlags, ButtonBuilder, ActionRowBuilder, ContainerBuilder, TextDisplayBuilder, SeparatorSpacingSize } = require('discord.js');
 
 const db_settings = new Database(`${__dirname}/../../database/settings.sqlite`);
@@ -23,6 +23,7 @@ module.exports = {
 			const showForecastRow = db_settings.prepare('SELECT showForecast FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 			const APIDataRow = db_settings.prepare('SELECT showAPIData FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 			const locationRow = db_settings.prepare('SELECT location FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+			const unitsRow = db_settings.prepare('SELECT units FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 
 			const location = locationRow.location;
 
@@ -31,7 +32,7 @@ module.exports = {
 			let lat = locations[location].latitude;
 			let long = locations[location].longitude;
 
-			const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${process.env.WEATHER_API_KEY}/${lat},${long}`);
+			const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${process.env.WEATHER_API_KEY}/${lat},${long}?units=${unitsRow.units}`);
 			const geoURL = axios.get(`https://api.geoapify.com/v1/geocode/search?text=${lat},${long}&lang=en&limit=1&format=json&apiKey=${process.env.GEO_API_KEY}`);
 
 			await axios
@@ -50,6 +51,11 @@ module.exports = {
 
 						const isDayTime = nowUnix >= todaySunriseTime && nowUnix < todaySunsetTime ? 1 : 0;
 
+						const getUnits = checkUnits(unitsRow.units);
+
+						const date = weatherData.daily.data[0].time;
+						const formattedDate = DateTime.fromSeconds(date).toFormat('MM-dd');
+
 						// TODO: Reminders
 						// TODO: Shift Tracking
 
@@ -59,27 +65,26 @@ module.exports = {
 
 						hubContainer.addTextDisplayComponents(versionText);
 
-						const date = weatherData.daily.data[0].time;
-						const formattedDate = DateTime.fromSeconds(date).toFormat('MM-dd');
-
 						const importantDateText = formattedDate in importantDates ? `\n-# ${emotes.listArrow} ***Today is ${importantDates[formattedDate].name}! ${importantDates[formattedDate].emote}***\n` : `\n`;
 
 						const headerText = new TextDisplayBuilder().setContent(
 							`# ${currentConditionEmote(isDayTime, nowCondition)} Weather for ${geoData.results[0].city}, ${geoData.results[0].state_code}${importantDateText}-# ${
 								emotes.listArrow
-							} Conditions are ${nowCondition} as of <t:${weatherData.currently.time}:t>\n-# ${emotes.listArrow} Winds at ${Math.floor(weatherData.currently.windSpeed)} mph, with gusts up to ${Math.floor(
-								weatherData.currently.windGust,
-							)} mph`,
+							} Conditions are ${nowCondition} as of <t:${weatherData.currently.time}:t>\n-# ${emotes.listArrow} Winds at ${Math.floor(weatherData.currently.windSpeed)} ${
+								checkUnits(unitsRow.units).wind
+							}, with gusts up to ${Math.floor(weatherData.currently.windGust)} ${checkUnits(unitsRow.units).wind}`,
 						);
 
 						const currentText = new TextDisplayBuilder().setContent(
-							`### Current Temperature: ${weatherData.currently.temperature.toFixed(1)}°F\n-# 🌡️ Feels Like: ${weatherData.currently.apparentTemperature.toFixed(1)}°F\n-# ${
-								emotes.tempHigh
-							} High of ${weatherData.daily.data[0].temperatureHigh.toFixed(1)}°F at <t:${weatherData.daily.data[0].temperatureHighTime}:t>\n-# ${
-								emotes.tempLow
-							} Low of ${weatherData.daily.data[0].temperatureLow.toFixed(1)}°F at <t:${weatherData.daily.data[0].temperatureLowTime}:t>\n### Daylight & Precipitation\n-# 🌧️ Chance of Rain: ${Math.floor(
-								weatherData.currently.precipProbability * 100,
-							)}%\n-# ${emotes.sunrise} Sunrise: <t:${todaySunriseTime}:t> [<t:${todaySunriseTime}:R>]\n-# ${emotes.sunset} Sunset: <t:${todaySunsetTime}:t> [<t:${todaySunsetTime}:R>]`,
+							`### Current Temperature: ${weatherData.currently.temperature.toFixed(1)}°${checkUnits(unitsRow.units).temperature}\n-# 🌡️ Feels Like: ${weatherData.currently.apparentTemperature.toFixed(
+								1,
+							)}°${checkUnits(unitsRow.units).temperature}\n-# ${emotes.tempHigh} High of ${weatherData.daily.data[0].temperatureHigh.toFixed(1)}°${checkUnits(unitsRow.units).temperature} at <t:${
+								weatherData.daily.data[0].temperatureHighTime
+							}:t>\n-# ${emotes.tempLow} Low of ${weatherData.daily.data[0].temperatureLow.toFixed(1)}°${checkUnits(unitsRow.units).temperature} at <t:${
+								weatherData.daily.data[0].temperatureLowTime
+							}:t>\n### Daylight & Precipitation\n-# 🌧️ Chance of Rain: ${Math.floor(weatherData.currently.precipProbability * 100)}%\n-# ${
+								emotes.sunrise
+							} Sunrise: <t:${todaySunriseTime}:t> [<t:${todaySunriseTime}:R>]\n-# ${emotes.sunset} Sunset: <t:${todaySunsetTime}:t> [<t:${todaySunsetTime}:R>]`,
 						);
 
 						hubContainer.addTextDisplayComponents(headerText);
@@ -89,7 +94,9 @@ module.exports = {
 						hubContainer.addTextDisplayComponents(currentText);
 
 						if (showForecastRow && showForecastRow.showForecast) {
-							const forecastText = new TextDisplayBuilder().setContent(`## 3-Day Forecast\n ${forecastDay(1, weatherData)}\n ${forecastDay(2, weatherData)}\n ${forecastDay(3, weatherData)}`);
+							const forecastText = new TextDisplayBuilder().setContent(
+								`## 3-Day Forecast\n ${forecastDay(1, weatherData, getUnits.temperature)}\n ${forecastDay(2, weatherData, getUnits.temperature)}\n ${forecastDay(3, weatherData, getUnits.temperature)}`,
+							);
 
 							hubContainer.addSeparatorComponents(separator => separator.setSpacing(SeparatorSpacingSize.Small));
 
@@ -172,7 +179,9 @@ module.exports = {
 			const newDate = new Date();
 			const currentSecond = newDate.getSeconds();
 			const currentMinute = newDate.getMinutes();
-			const settingsRow = db_settings.prepare('SELECT showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate, location, locationUpdate FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+			const settingsRow = db_settings
+				.prepare('SELECT showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate, location, locationUpdate, units, unitsUpdate FROM settings WHERE guild_id = ?')
+				.get(process.env.SERVER_ID);
 
 			if (currentSecond === 0 && currentMinute % process.env.INTERVAL == 0) {
 				updateHubData();
@@ -201,6 +210,14 @@ module.exports = {
 					updateHubData();
 
 					console.log(chalk.blue(`${chalk.bold('[MODAL]')} Location Updated`));
+				}
+
+				if (settingsRow.units !== settingsRow.unitsUpdate) {
+					db_settings.prepare('UPDATE settings SET unitsUpdate = ? WHERE guild_id = ?').run(settingsRow.units, process.env.SERVER_ID);
+
+					updateHubData();
+
+					console.log(chalk.blue(`${chalk.bold('[MODAL]')} Units Updated`));
 				}
 			}
 		}, 1000);

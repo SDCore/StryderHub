@@ -65,7 +65,23 @@ module.exports = {
 							.setMaxValues(1),
 					);
 
+				const unitSelect = new LabelBuilder()
+					.setLabel('Units')
+					.setStringSelectMenuComponent(
+						new StringSelectMenuBuilder()
+							.setCustomId('unitSelect')
+							.setPlaceholder('Select units')
+							.addOptions(
+								new StringSelectMenuOptionBuilder().setLabel('US').setValue('us').setDescription('Temperature: Fahrenheit, Wind: mph').setDefault(true),
+								new StringSelectMenuOptionBuilder().setLabel('Canada').setValue('ca').setDescription('Temperature: Celsius, Wind: kph'),
+								new StringSelectMenuOptionBuilder().setLabel('UK').setValue('uk').setDescription('Temperature: Celsius, Wind: mph'),
+							)
+							.setMinValues(1)
+							.setMaxValues(1),
+					);
+
 				settingsModal.addLabelComponents(locationSelect);
+				settingsModal.addLabelComponents(unitSelect);
 
 				await interaction.showModal(settingsModal);
 			}
@@ -79,10 +95,11 @@ module.exports = {
 
 		if (interaction.customId == 'settingsModal') {
 			const location = interaction.fields.getStringSelectValues('locationSelect');
+			const units = interaction.fields.getStringSelectValues('unitSelect');
 
-			db_settings.prepare('UPDATE settings SET location = ? WHERE guild_id = ?').run(location[0], process.env.SERVER_ID);
+			db_settings.prepare('UPDATE settings SET location = ?, units = ? WHERE guild_id = ?').run(location[0], units[0], process.env.SERVER_ID);
 
-			interaction.reply({ content: `Updated location to ${location}!`, flags: MessageFlags.Ephemeral });
+			interaction.reply({ content: `Updated location to ${location} and units to ${units}!`, flags: MessageFlags.Ephemeral });
 		}
 	},
 };
