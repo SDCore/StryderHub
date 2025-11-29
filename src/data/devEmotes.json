@@ -6,6 +6,7 @@
 	"tempLow": "<:weather_tempLow:1411611801157763123>",
 	"sunrise": "<:weather_Sunrise:1418750691194704005>",
 	"sunset": "<:weather_Sunset:1418750722375159908>",
+	"genericAlert": "<a:weather_GenericAlert:1444107499341873222>",
 	"clearDay": "<a:weather_clearDay:1411607016765521960>",
 	"clearNight": "<a:weather_clearNight:1411607476511703111>",
 	"breezyDay": "<a:weather_ClearWindDay:1435776042470998108>",

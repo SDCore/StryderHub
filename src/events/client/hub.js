@@ -24,6 +24,7 @@ module.exports = {
 			const APIDataRow = db_settings.prepare('SELECT showAPIData FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 			const locationRow = db_settings.prepare('SELECT location FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 			const unitsRow = db_settings.prepare('SELECT units FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+			const alertsRow = db_settings.prepare('SELECT alerts FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 
 			const location = locationRow.location;
 
@@ -32,7 +33,7 @@ module.exports = {
 			let lat = locations[location].latitude;
 			let long = locations[location].longitude;
 
-			const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${process.env.WEATHER_API_KEY}/${lat},${long}?units=${unitsRow.units}`);
+			const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${process.env.WEATHER_API_KEY}/${lat},${long}?units=${unitsRow.units}&exclude=minutely,hourly,flags`);
 			const geoURL = axios.get(`https://api.geoapify.com/v1/geocode/search?text=${lat},${long}&lang=en&limit=1&format=json&apiKey=${process.env.GEO_API_KEY}`);
 
 			await axios
@@ -82,7 +83,7 @@ module.exports = {
 								weatherData.daily.data[0].temperatureHighTime
 							}:t>\n-# ${emotes.tempLow} Low of ${weatherData.daily.data[0].temperatureLow.toFixed(1)}°${checkUnits(unitsRow.units).temperature} at <t:${
 								weatherData.daily.data[0].temperatureLowTime
-							}:t>\n### Daylight & Precipitation\n-# 🌧️ Chance of Rain: ${Math.floor(weatherData.currently.precipProbability * 100)}%\n-# ${
+							}:t>\n### Daylight & Precipitation\n-# 🌧️ Chance of Precipitation: ${Math.floor(weatherData.currently.precipProbability * 100)}%\n-# ${
 								emotes.sunrise
 							} Sunrise: <t:${todaySunriseTime}:t> [<t:${todaySunriseTime}:R>]\n-# ${emotes.sunset} Sunset: <t:${todaySunsetTime}:t> [<t:${todaySunsetTime}:R>]`,
 						);
@@ -130,21 +131,54 @@ module.exports = {
 							var apiDataButtonEmote = emotes.buttonOff;
 						}
 
+						const alertContainer = new ContainerBuilder();
+
+						if (weatherData.alerts.length > 0 && alertsRow && alertsRow.alerts) {
+							const alertText = new TextDisplayBuilder().setContent(
+								[
+									`# ${emotes.genericAlert} Weather Alerts`,
+									`## ${weatherData.alerts[0].title}`,
+									`-# ${emotes.listArrow} [View Weather Alert](${weatherData.alerts[0].uri})`,
+									`-# ${emotes.listArrow} Issued <t:${weatherData.alerts[0].time}:f> [<t:${weatherData.alerts[0].time}:R>]\n-# ${emotes.listArrow} Expires <t:${weatherData.alerts[0].expires}:f> [<t:${weatherData.alerts[0].expires}:R>]`,
+									`\n${emotes.listArrow} **Counties:** ${weatherData.alerts[0].regions.toString().replace(/,/g, ', ').replace('Lake', '**Lake**')}`,
+									`\n${weatherData.alerts[0].description
+										.replace('* WHAT...', `${emotes.listArrow} **WHAT:** `)
+										.replace('* WHERE...', `${emotes.listArrow} **WHERE:** `)
+										.replace('* WHEN...', `${emotes.listArrow} **WHEN:** `)
+										.replace('* IMPACTS...', `${emotes.listArrow} **IMPACTS:** `)
+										.replace('* ADDITIONAL DETAILS...', `${emotes.listArrow} **ADDITIONAL DETAILS:** `)}`,
+								].join('\n'),
+							);
+
+							alertContainer.addTextDisplayComponents(alertText);
+
+							var apiAlertsButtonEmote = emotes.buttonOn;
+						} else {
+							var apiAlertsButtonEmote = emotes.buttonOff;
+						}
+
 						const toggleForecastButton = new ButtonBuilder().setCustomId('toggleThreeDayForecast').setEmoji(forecastButtonEmote).setLabel('Forecast').setStyle(ButtonStyle.Secondary);
-						const toggleAPIDataButton = new ButtonBuilder().setCustomId('toggleAPIData').setEmoji(apiDataButtonEmote).setLabel('API Data').setStyle(ButtonStyle.Secondary);
+						const toggleAPIDataButton = new ButtonBuilder().setCustomId('toggleAPIData').setEmoji(apiDataButtonEmote).setLabel('API').setStyle(ButtonStyle.Secondary);
+						const toggleAlertsButton = new ButtonBuilder().setCustomId('toggleAlerts').setEmoji(apiAlertsButtonEmote).setLabel('Alerts').setStyle(ButtonStyle.Secondary);
 						const settingsButton = new ButtonBuilder().setCustomId('settings').setEmoji('⚙️').setStyle(ButtonStyle.Secondary);
 						// const startShiftButton = new ButtonBuilder().setCustomId('startShift').setLabel('+').setStyle(ButtonStyle.Success).setDisabled(true);
 						// const endShiftButton = new ButtonBuilder().setCustomId('endShift').setLabel('-').setStyle(ButtonStyle.Danger).setDisabled(true);
 
-						const buttonRow = new ActionRowBuilder().addComponents(toggleForecastButton, toggleAPIDataButton, settingsButton);
+						const buttonRow = new ActionRowBuilder().addComponents(toggleForecastButton, toggleAPIDataButton, toggleAlertsButton, settingsButton);
 
 						const guild = client.guilds.cache.get(process.env.SERVER_ID);
 						const channel = guild.channels.cache.get(process.env.CHANNEL_ID);
 
+						if (weatherData.alerts.length > 0 && alertsRow && alertsRow.alerts) {
+							var componentList = [hubContainer, alertContainer, buttonRow];
+						} else {
+							var componentList = [hubContainer, buttonRow];
+						}
+
 						channel.messages.fetch(process.env.MESSAGE_ID).then(msg => {
 							msg.edit({
 								embeds: [],
-								components: [hubContainer, buttonRow],
+								components: componentList,
 								flags: MessageFlags.IsComponentsV2,
 							});
 						});
@@ -180,7 +214,7 @@ module.exports = {
 			const currentSecond = newDate.getSeconds();
 			const currentMinute = newDate.getMinutes();
 			const settingsRow = db_settings
-				.prepare('SELECT showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate, location, locationUpdate, units, unitsUpdate FROM settings WHERE guild_id = ?')
+				.prepare('SELECT showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate, location, locationUpdate, units, unitsUpdate, alerts, alertsUpdate FROM settings WHERE guild_id = ?')
 				.get(process.env.SERVER_ID);
 
 			if (currentSecond === 0 && currentMinute % process.env.INTERVAL == 0) {
@@ -202,6 +236,14 @@ module.exports = {
 					updateHubData();
 
 					console.log(chalk.blue(`${chalk.bold('[BUTTON]')} API Data Toggled`));
+				}
+
+				if (settingsRow.alerts !== settingsRow.alertsUpdate) {
+					db_settings.prepare('UPDATE settings SET alertsUpdate = ? WHERE guild_id = ?').run(settingsRow.alerts, process.env.SERVER_ID);
+
+					updateHubData();
+
+					console.log(chalk.blue(`${chalk.bold('[BUTTON]')} Weather Alerts Toggled`));
 				}
 
 				if (settingsRow.location !== settingsRow.locationUpdate) {
