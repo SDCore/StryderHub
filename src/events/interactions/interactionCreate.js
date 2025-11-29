@@ -46,6 +46,16 @@ module.exports = {
 				interaction.reply({ content: 'Toggled API Data', flags: MessageFlags.Ephemeral });
 			}
 
+			if (buttonID == 'toggleAlerts') {
+				const alertsRow = db_settings.prepare('SELECT alerts FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+
+				const newAlerts = alertsRow ? (alertsRow.alerts ? 0 : 1) : 1;
+
+				db_settings.prepare('UPDATE settings SET alerts = ? WHERE guild_id = ?').run(newAlerts, process.env.SERVER_ID);
+
+				interaction.reply({ content: 'Toggled Weather Alerts', flags: MessageFlags.Ephemeral });
+			}
+
 			if (buttonID == 'settings') {
 				const settingsModal = new ModalBuilder().setCustomId('settingsModal').setTitle('Stryder Hub Settings');
 
