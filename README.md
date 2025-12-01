@@ -1,3 +1,3 @@
 # StryderHub
 
-Discord bot hub
+View weather and weather alerts directly in Discord.
