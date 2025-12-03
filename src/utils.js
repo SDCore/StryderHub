@@ -1,6 +1,6 @@
 const { DateTime } = require('luxon');
 
-const emotes = require(`./data/${emoteFile(process.env.DEBUG)}Emotes.json`);
+const emotes = require(`./data/${emoteFile(Bun.env.DEBUG)}Emotes.json`);
 
 function emoteFile(debug) {
 	if (debug === 'true') return 'dev';

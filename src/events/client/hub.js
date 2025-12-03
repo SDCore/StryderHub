@@ -9,7 +9,7 @@ const { ButtonStyle, MessageFlags, ButtonBuilder, ActionRowBuilder, ContainerBui
 const db_settings = new Database(`${__dirname}/../../database/settings.sqlite`);
 
 const importantDates = require(`../../data/dates.json`);
-const emotes = require(`../../data/${emoteFile(process.env.DEBUG)}Emotes.json`);
+const emotes = require(`../../data/${emoteFile(Bun.env.DEBUG)}Emotes.json`);
 
 const wait = n => new Promise(resolve => setTimeout(resolve, n));
 
@@ -17,10 +17,10 @@ module.exports = {
 	name: 'clientReady',
 	once: true,
 	execute(client) {
-		if (process.env.ENABLED == 'false') return;
+		if (Bun.env.ENABLED == 'false') return;
 
 		async function updateHubData() {
-			const getSettings = db_settings.prepare('SELECT showForecast, showAPIData, location, units, alerts FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+			const getSettings = db_settings.prepare('SELECT showForecast, showAPIData, location, units, alerts FROM settings WHERE guild_id = ?').get(Bun.env.SERVER_ID);
 
 			const location = getSettings.location;
 
@@ -29,8 +29,8 @@ module.exports = {
 			let lat = locations[location].latitude;
 			let long = locations[location].longitude;
 
-			const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${process.env.WEATHER_API_KEY}/${lat},${long}?units=${getSettings.units}&exclude=minutely,hourly,flags`);
-			const geoURL = axios.get(`https://api.geoapify.com/v1/geocode/search?text=${lat},${long}&lang=en&limit=1&format=json&apiKey=${process.env.GEO_API_KEY}`);
+			const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${Bun.env.WEATHER_API_KEY}/${lat},${long}?units=${getSettings.units}&exclude=minutely,hourly,flags`);
+			const geoURL = axios.get(`https://api.geoapify.com/v1/geocode/search?text=${lat},${long}&lang=en&limit=1&format=json&apiKey=${Bun.env.GEO_API_KEY}`);
 
 			await axios
 				.all([weatherURL, geoURL])
@@ -162,8 +162,8 @@ module.exports = {
 
 						const buttonRow = new ActionRowBuilder().addComponents(toggleForecastButton, toggleAPIDataButton, toggleAlertsButton, settingsButton);
 
-						const guild = client.guilds.cache.get(process.env.SERVER_ID);
-						const channel = guild.channels.cache.get(process.env.CHANNEL_ID);
+						const guild = client.guilds.cache.get(Bun.env.SERVER_ID);
+						const channel = guild.channels.cache.get(Bun.env.CHANNEL_ID);
 
 						if (weatherData.alerts.length > 0 && getSettings && getSettings.alerts) {
 							var componentList = [hubContainer, alertContainer, buttonRow];
@@ -171,7 +171,7 @@ module.exports = {
 							var componentList = [hubContainer, buttonRow];
 						}
 
-						channel.messages.fetch(process.env.MESSAGE_ID).then(msg => {
+						channel.messages.fetch(Bun.env.MESSAGE_ID).then(msg => {
 							msg.edit({
 								embeds: [],
 								components: componentList,
@@ -211,15 +211,15 @@ module.exports = {
 			const currentMinute = newDate.getMinutes();
 			const settingsRow = db_settings
 				.prepare('SELECT showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate, location, locationUpdate, units, unitsUpdate, alerts, alertsUpdate FROM settings WHERE guild_id = ?')
-				.get(process.env.SERVER_ID);
+				.get(Bun.env.SERVER_ID);
 
-			if (currentSecond === 0 && currentMinute % process.env.INTERVAL == 0) {
+			if (currentSecond === 0 && currentMinute % Bun.env.INTERVAL == 0) {
 				updateHubData();
 			}
 
 			if (settingsRow) {
 				if (settingsRow.showForecast !== settingsRow.showForecastUpdate) {
-					db_settings.prepare('UPDATE settings SET showForecastUpdate = ? WHERE guild_id = ?').run(settingsRow.showForecast, process.env.SERVER_ID);
+					db_settings.prepare('UPDATE settings SET showForecastUpdate = ? WHERE guild_id = ?').run(settingsRow.showForecast, Bun.env.SERVER_ID);
 
 					updateHubData();
 
@@ -227,7 +227,7 @@ module.exports = {
 				}
 
 				if (settingsRow.showAPIData !== settingsRow.showAPIDataUpdate) {
-					db_settings.prepare('UPDATE settings SET showAPIDataUpdate = ? WHERE guild_id = ?').run(settingsRow.showAPIData, process.env.SERVER_ID);
+					db_settings.prepare('UPDATE settings SET showAPIDataUpdate = ? WHERE guild_id = ?').run(settingsRow.showAPIData, Bun.env.SERVER_ID);
 
 					updateHubData();
 
@@ -235,7 +235,7 @@ module.exports = {
 				}
 
 				if (settingsRow.alerts !== settingsRow.alertsUpdate) {
-					db_settings.prepare('UPDATE settings SET alertsUpdate = ? WHERE guild_id = ?').run(settingsRow.alerts, process.env.SERVER_ID);
+					db_settings.prepare('UPDATE settings SET alertsUpdate = ? WHERE guild_id = ?').run(settingsRow.alerts, Bun.env.SERVER_ID);
 
 					updateHubData();
 
@@ -243,7 +243,7 @@ module.exports = {
 				}
 
 				if (settingsRow.location !== settingsRow.locationUpdate) {
-					db_settings.prepare('UPDATE settings SET locationUpdate = ? WHERE guild_id = ?').run(settingsRow.location, process.env.SERVER_ID);
+					db_settings.prepare('UPDATE settings SET locationUpdate = ? WHERE guild_id = ?').run(settingsRow.location, Bun.env.SERVER_ID);
 
 					updateHubData();
 
@@ -251,7 +251,7 @@ module.exports = {
 				}
 
 				if (settingsRow.units !== settingsRow.unitsUpdate) {
-					db_settings.prepare('UPDATE settings SET unitsUpdate = ? WHERE guild_id = ?').run(settingsRow.units, process.env.SERVER_ID);
+					db_settings.prepare('UPDATE settings SET unitsUpdate = ? WHERE guild_id = ?').run(settingsRow.units, Bun.env.SERVER_ID);
 
 					updateHubData();
 

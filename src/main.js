@@ -1,12 +1,9 @@
 const chalk = require('chalk');
-const dotenv = require('dotenv');
 const { Database } = require('bun:sqlite');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Guilds, GuildMembers, GuildMessages, GuildPresences } = GatewayIntentBits;
 
-dotenv.config({ quiet: true });
-
-process.env.TZ = 'America/Chicago';
+Bun.env.TZ = 'America/Chicago';
 
 const { loadEvents } = require('./loadEvents.js');
 
@@ -25,7 +22,7 @@ process.on('uncaughtExceptionMonitor', (err, origin) => {
 });
 
 client
-	.login(process.env.DISCORD_TOKEN)
+	.login(Bun.env.DISCORD_TOKEN)
 	.then(() => {
 		loadEvents(client);
 	})
@@ -45,6 +42,6 @@ db_settings
 	.prepare(
 		'INSERT OR IGNORE INTO settings (guild_id, showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate, location, locationUpdate, units, unitsUpdate, alerts, alertsUpdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 	)
-	.run(process.env.SERVER_ID, 1, 1, 1, 1, 'home', 'home', 'us', 'us', 1, 1);
+	.run(Bun.env.SERVER_ID, 1, 1, 1, 1, 'home', 'home', 'us', 'us', 1, 1);
 
 module.exports = { client };
