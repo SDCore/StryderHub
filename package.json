@@ -4,9 +4,9 @@
 	"description": "",
 	"main": "src/main.js",
 	"scripts": {
-		"start": "bun run src/main.js",
+		"start": "bun run --bun .",
 		"dev": "nodemon .",
-		"bun": "bun --watch ."
+		"bun": "bun --bun --watch ."
 	},
 	"repository": {
 		"type": "git",
