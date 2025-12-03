@@ -10,6 +10,12 @@ module.exports = {
 	execute(client) {
 		console.log(chalk.green(`${chalk.bold('[BOT]')} ${client.user.username} is Online.`));
 
+		if (process.versions.bun) {
+			console.log('USING BUN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+		} else {
+			console.log('NOT USING BUN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+		}
+
 		(async function presenceLoop() {
 			const currentMinute = new Date().getMinutes();
 			const currentDay = new Date().getDate();

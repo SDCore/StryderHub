@@ -1,7 +1,6 @@
 const chalk = require('chalk');
 const axios = require('axios');
 const { DateTime } = require('luxon');
-//const Database = require('better-sqlite3');
 const { Database } = require('bun:sqlite');
 const { version } = require('../../../package.json');
 const { emoteFile, checkUnits, forecastDay, conditionText, currentConditionEmote } = require('../../utils.js');
