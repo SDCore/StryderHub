@@ -24,12 +24,12 @@ module.exports = {
 		if (interaction.isButton()) {
 			const buttonID = interaction.customId;
 
+			const getSettings = db_settings.prepare('SELECT * FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+
 			if (!buttonID) return;
 
 			if (buttonID == 'toggleThreeDayForecast') {
-				const showForecastRow = db_settings.prepare('SELECT showForecast FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
-
-				const newShowForecast = showForecastRow ? (showForecastRow.showForecast ? 0 : 1) : 1;
+				const newShowForecast = getSettings ? (getSettings.showForecast ? 0 : 1) : 1;
 
 				db_settings.prepare('UPDATE settings SET showForecast = ? WHERE guild_id = ?').run(newShowForecast, process.env.SERVER_ID);
 
@@ -37,9 +37,7 @@ module.exports = {
 			}
 
 			if (buttonID == 'toggleAPIData') {
-				const showAPIDataRow = db_settings.prepare('SELECT showAPIData FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
-
-				const newShowAPIData = showAPIDataRow ? (showAPIDataRow.showAPIData ? 0 : 1) : 1;
+				const newShowAPIData = getSettings ? (getSettings.showAPIData ? 0 : 1) : 1;
 
 				db_settings.prepare('UPDATE settings SET showAPIData = ? WHERE guild_id = ?').run(newShowAPIData, process.env.SERVER_ID);
 
@@ -47,9 +45,7 @@ module.exports = {
 			}
 
 			if (buttonID == 'toggleAlerts') {
-				const alertsRow = db_settings.prepare('SELECT alerts FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
-
-				const newAlerts = alertsRow ? (alertsRow.alerts ? 0 : 1) : 1;
+				const newAlerts = getSettings ? (getSettings.alerts ? 0 : 1) : 1;
 
 				db_settings.prepare('UPDATE settings SET alerts = ? WHERE guild_id = ?').run(newAlerts, process.env.SERVER_ID);
 

@@ -31,17 +31,16 @@ client
 	})
 	.catch(err => console.log(err));
 
-// Create DB Files if they don't exist
-const db_settings = new Database(`${__dirname}/database/settings.sqlite`);
+const db_settings = new Database(`${__dirname}/database/settings.sqlite`, { create: true });
 
 db_settings.prepare('DROP TABLE IF EXISTS settings').run();
+
 db_settings
 	.prepare(
 		'CREATE TABLE IF NOT EXISTS settings (guild_id TEXT, showForecast BOOL, showForecastUpdate BOOL, showAPIData BOOL, showAPIDataUpdate BOOL, location TEXT, locationUpdate TEXT, units TEXT, unitsUpdate TEXT, alerts BOOL, alertsUpdate BOOL, PRIMARY KEY(guild_id))',
 	)
 	.run();
 
-// insert default settings for guild if not present
 db_settings
 	.prepare(
 		'INSERT OR IGNORE INTO settings (guild_id, showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate, location, locationUpdate, units, unitsUpdate, alerts, alertsUpdate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',

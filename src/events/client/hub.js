@@ -20,20 +20,16 @@ module.exports = {
 		if (process.env.ENABLED == 'false') return;
 
 		async function updateHubData() {
-			const showForecastRow = db_settings.prepare('SELECT showForecast FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
-			const APIDataRow = db_settings.prepare('SELECT showAPIData FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
-			const locationRow = db_settings.prepare('SELECT location FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
-			const unitsRow = db_settings.prepare('SELECT units FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
-			const alertsRow = db_settings.prepare('SELECT alerts FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+			const getSettings = db_settings.prepare('SELECT showForecast, showAPIData, location, units, alerts FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
 
-			const location = locationRow.location;
+			const location = getSettings.location;
 
 			const locations = require(`../../data/locations.json`);
 
 			let lat = locations[location].latitude;
 			let long = locations[location].longitude;
 
-			const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${process.env.WEATHER_API_KEY}/${lat},${long}?units=${unitsRow.units}&exclude=minutely,hourly,flags`);
+			const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${process.env.WEATHER_API_KEY}/${lat},${long}?units=${getSettings.units}&exclude=minutely,hourly,flags`);
 			const geoURL = axios.get(`https://api.geoapify.com/v1/geocode/search?text=${lat},${long}&lang=en&limit=1&format=json&apiKey=${process.env.GEO_API_KEY}`);
 
 			await axios
@@ -52,7 +48,7 @@ module.exports = {
 
 						const isDayTime = nowUnix >= todaySunriseTime && nowUnix < todaySunsetTime ? 1 : 0;
 
-						const getUnits = checkUnits(unitsRow.units);
+						const getUnits = checkUnits(getSettings.units);
 
 						const date = weatherData.daily.data[0].time;
 						const formattedDate = DateTime.fromSeconds(date).toFormat('MM-dd');
@@ -72,16 +68,16 @@ module.exports = {
 							`# ${currentConditionEmote(isDayTime, nowCondition)} Weather for ${geoData.results[0].city}, ${geoData.results[0].state_code}${importantDateText}-# ${
 								emotes.listArrow
 							} Conditions are ${nowCondition} as of <t:${weatherData.currently.time}:t>\n-# ${emotes.listArrow} Winds at ${Math.floor(weatherData.currently.windSpeed)} ${
-								checkUnits(unitsRow.units).wind
-							}, with gusts up to ${Math.floor(weatherData.currently.windGust)} ${checkUnits(unitsRow.units).wind}`,
+								checkUnits(getSettings.units).wind
+							}, with gusts up to ${Math.floor(weatherData.currently.windGust)} ${checkUnits(getSettings.units).wind}`,
 						);
 
 						const currentText = new TextDisplayBuilder().setContent(
-							`### Current Temperature: ${weatherData.currently.temperature.toFixed(1)}°${checkUnits(unitsRow.units).temperature}\n-# 🌡️ Feels Like: ${weatherData.currently.apparentTemperature.toFixed(
+							`### Current Temperature: ${weatherData.currently.temperature.toFixed(1)}°${checkUnits(getSettings.units).temperature}\n-# 🌡️ Feels Like: ${weatherData.currently.apparentTemperature.toFixed(
 								1,
-							)}°${checkUnits(unitsRow.units).temperature}\n-# ${emotes.tempHigh} High of ${weatherData.daily.data[0].temperatureHigh.toFixed(1)}°${checkUnits(unitsRow.units).temperature} at <t:${
+							)}°${checkUnits(getSettings.units).temperature}\n-# ${emotes.tempHigh} High of ${weatherData.daily.data[0].temperatureHigh.toFixed(1)}°${checkUnits(getSettings.units).temperature} at <t:${
 								weatherData.daily.data[0].temperatureHighTime
-							}:t>\n-# ${emotes.tempLow} Low of ${weatherData.daily.data[0].temperatureLow.toFixed(1)}°${checkUnits(unitsRow.units).temperature} at <t:${
+							}:t>\n-# ${emotes.tempLow} Low of ${weatherData.daily.data[0].temperatureLow.toFixed(1)}°${checkUnits(getSettings.units).temperature} at <t:${
 								weatherData.daily.data[0].temperatureLowTime
 							}:t>\n### Daylight & Precipitation\n-# 🌧️ Chance of Precipitation: ${Math.floor(weatherData.currently.precipProbability * 100)}%\n-# ${
 								emotes.sunrise
@@ -94,7 +90,7 @@ module.exports = {
 
 						hubContainer.addTextDisplayComponents(currentText);
 
-						if (showForecastRow && showForecastRow.showForecast) {
+						if (getSettings && getSettings.showForecast) {
 							const forecastText = new TextDisplayBuilder().setContent(
 								`## 3-Day Forecast\n${forecastDay(1, weatherData, getUnits.temperature)}\n${forecastDay(2, weatherData, getUnits.temperature)}\n${forecastDay(3, weatherData, getUnits.temperature)}`,
 							);
@@ -108,7 +104,7 @@ module.exports = {
 							var forecastButtonEmote = emotes.buttonOff;
 						}
 
-						if (APIDataRow && APIDataRow.showAPIData) {
+						if (getSettings && getSettings.showAPIData) {
 							const usage = parseInt(apiData['ratelimit-limit']) - parseInt(apiData['ratelimit-remaining']);
 							const usagePercent = ((usage / apiData['ratelimit-limit']) * 100).toFixed(2);
 							const unixTime = Math.floor(Date.now() / 1000);
@@ -133,7 +129,7 @@ module.exports = {
 
 						const alertContainer = new ContainerBuilder();
 
-						if (weatherData.alerts.length > 0 && alertsRow && alertsRow.alerts) {
+						if (weatherData.alerts.length > 0 && getSettings && getSettings.alerts) {
 							const alertText = new TextDisplayBuilder().setContent(
 								[
 									`# ${emotes.genericAlert} Weather Alerts`,
@@ -169,7 +165,7 @@ module.exports = {
 						const guild = client.guilds.cache.get(process.env.SERVER_ID);
 						const channel = guild.channels.cache.get(process.env.CHANNEL_ID);
 
-						if (weatherData.alerts.length > 0 && alertsRow && alertsRow.alerts) {
+						if (weatherData.alerts.length > 0 && getSettings && getSettings.alerts) {
 							var componentList = [hubContainer, alertContainer, buttonRow];
 						} else {
 							var componentList = [hubContainer, buttonRow];
