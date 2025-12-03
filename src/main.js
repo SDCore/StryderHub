@@ -1,6 +1,7 @@
 const chalk = require('chalk');
 const dotenv = require('dotenv');
-const Database = require('better-sqlite3');
+// const Database = require('better-sqlite3');
+const { Database } = require('bun:sqlite');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Guilds, GuildMembers, GuildMessages, GuildPresences } = GatewayIntentBits;
 
