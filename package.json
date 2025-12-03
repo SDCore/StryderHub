@@ -5,7 +5,6 @@
 	"main": "src/main.js",
 	"scripts": {
 		"start": "bun run --bun .",
-		"dev": "nodemon .",
 		"bun": "bun --bun --watch ."
 	},
 	"repository": {
