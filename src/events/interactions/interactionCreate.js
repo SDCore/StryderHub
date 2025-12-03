@@ -1,5 +1,6 @@
 const chalk = require('chalk');
-const Database = require('better-sqlite3');
+// const Database = require('better-sqlite3');
+const { Database } = require('bun:sqlite');
 const { ModalBuilder, MessageFlags, LabelBuilder, InteractionType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
 
 const db_settings = new Database(`${__dirname}/../../database/settings.sqlite`);

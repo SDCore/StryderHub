@@ -4,7 +4,8 @@
 	"description": "",
 	"main": "src/main.js",
 	"scripts": {
-		"dev": "nodemon ."
+		"dev": "nodemon .",
+		"bun": "bun --watch ."
 	},
 	"repository": {
 		"type": "git",
@@ -23,5 +24,12 @@
 		"discord.js": "^14.25.1",
 		"dotenv": "^17.2.3",
 		"luxon": "^3.7.2"
+	},
+	"private": true,
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
 	}
 }
