@@ -92,6 +92,23 @@ function conditionText(condition) {
 	}
 }
 
+function updateTypeText(type) {
+	switch (type) {
+		case 'forecast':
+			return '3-day forecast';
+		case 'api':
+			return 'API data';
+		case 'alerts':
+			return 'weather alerts';
+		case 'location':
+			return 'weather data location';
+		case 'units':
+			return 'units';
+		default:
+			return 'toggle';
+	}
+}
+
 function currentConditionEmote(time, condition) {
 	if (time)
 		switch (condition) {
@@ -213,4 +230,4 @@ function currentConditionEmote(time, condition) {
 	}
 }
 
-module.exports = { emoteFile, checkUnits, forecastDay, conditionText, currentConditionEmote };
+module.exports = { emoteFile, checkUnits, forecastDay, conditionText, updateTypeText, currentConditionEmote };

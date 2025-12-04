@@ -1,4 +1,5 @@
 const chalk = require('chalk');
+const { DateTime } = require('luxon');
 const { Database } = require('bun:sqlite');
 const { ModalBuilder, MessageFlags, LabelBuilder, InteractionType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
 
@@ -33,7 +34,7 @@ module.exports = {
 
 				db_settings.prepare('UPDATE settings SET showForecast = ? WHERE guild_id = ?').run(newShowForecast, Bun.env.SERVER_ID);
 
-				interaction.reply({ content: 'Toggled 3-Day Forecast', flags: MessageFlags.Ephemeral });
+				interaction.deferUpdate();
 			}
 
 			if (buttonID == 'toggleAPIData') {
@@ -41,7 +42,7 @@ module.exports = {
 
 				db_settings.prepare('UPDATE settings SET showAPIData = ? WHERE guild_id = ?').run(newShowAPIData, Bun.env.SERVER_ID);
 
-				interaction.reply({ content: 'Toggled API Data', flags: MessageFlags.Ephemeral });
+				interaction.deferUpdate();
 			}
 
 			if (buttonID == 'toggleAlerts') {
@@ -49,7 +50,7 @@ module.exports = {
 
 				db_settings.prepare('UPDATE settings SET alerts = ? WHERE guild_id = ?').run(newAlerts, Bun.env.SERVER_ID);
 
-				interaction.reply({ content: 'Toggled Weather Alerts', flags: MessageFlags.Ephemeral });
+				interaction.deferUpdate();
 			}
 
 			if (buttonID == 'settings') {
@@ -105,7 +106,7 @@ module.exports = {
 
 			db_settings.prepare('UPDATE settings SET location = ?, units = ? WHERE guild_id = ?').run(location[0], units[0], Bun.env.SERVER_ID);
 
-			interaction.reply({ content: `Updated location to ${location} and units to ${units}!`, flags: MessageFlags.Ephemeral });
+			interaction.deferUpdate();
 		}
 	},
 };

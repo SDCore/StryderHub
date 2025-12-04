@@ -3,7 +3,7 @@ const axios = require('axios');
 const { DateTime } = require('luxon');
 const { Database } = require('bun:sqlite');
 const { version } = require('../../../package.json');
-const { emoteFile, checkUnits, forecastDay, conditionText, currentConditionEmote } = require('../../utils.js');
+const { emoteFile, checkUnits, forecastDay, conditionText, updateTypeText, currentConditionEmote } = require('../../utils.js');
 const { ButtonStyle, MessageFlags, ButtonBuilder, ActionRowBuilder, ContainerBuilder, TextDisplayBuilder, SeparatorSpacingSize } = require('discord.js');
 
 const db_settings = new Database(`${__dirname}/../../database/settings.sqlite`);
@@ -20,7 +20,7 @@ module.exports = {
 		if (Bun.env.ENABLED == 'false') return;
 
 		async function updateHubData() {
-			const getSettings = db_settings.prepare('SELECT showForecast, showAPIData, location, units, alerts FROM settings WHERE guild_id = ?').get(Bun.env.SERVER_ID);
+			const getSettings = db_settings.prepare('SELECT showForecast, showAPIData, location, units, alerts, updateType, lastUpdated FROM settings WHERE guild_id = ?').get(Bun.env.SERVER_ID);
 
 			const location = getSettings.location;
 
@@ -153,6 +153,16 @@ module.exports = {
 							var apiAlertsButtonEmote = emotes.buttonOff;
 						}
 
+						const lastUpdatedPlusTenSeconds = parseInt(getSettings.lastUpdated) + 10;
+
+						if (Math.floor(DateTime.now().toSeconds()) < lastUpdatedPlusTenSeconds) {
+							hubContainer.addSeparatorComponents(separator => separator.setSpacing(SeparatorSpacingSize.Small));
+
+							const updatedText = new TextDisplayBuilder().setContent(`-# Updated **${updateTypeText(getSettings.updateType)}** at <t:${getSettings.lastUpdated}:T> [<t:${getSettings.lastUpdated}:R>]`);
+
+							hubContainer.addTextDisplayComponents(updatedText);
+						}
+
 						const toggleForecastButton = new ButtonBuilder().setCustomId('toggleThreeDayForecast').setEmoji(forecastButtonEmote).setLabel('Forecast').setStyle(ButtonStyle.Secondary);
 						const toggleAPIDataButton = new ButtonBuilder().setCustomId('toggleAPIData').setEmoji(apiDataButtonEmote).setLabel('API').setStyle(ButtonStyle.Secondary);
 						const toggleAlertsButton = new ButtonBuilder().setCustomId('toggleAlerts').setEmoji(apiAlertsButtonEmote).setLabel('Alerts').setStyle(ButtonStyle.Secondary);
@@ -219,7 +229,9 @@ module.exports = {
 
 			if (settingsRow) {
 				if (settingsRow.showForecast !== settingsRow.showForecastUpdate) {
-					db_settings.prepare('UPDATE settings SET showForecastUpdate = ? WHERE guild_id = ?').run(settingsRow.showForecast, Bun.env.SERVER_ID);
+					db_settings
+						.prepare('UPDATE settings SET showForecastUpdate = ?, updateType = ?, lastUpdated = ? WHERE guild_id = ?')
+						.run(settingsRow.showForecast, 'forecast', Math.floor(DateTime.now().toSeconds()), Bun.env.SERVER_ID);
 
 					updateHubData();
 
@@ -227,7 +239,9 @@ module.exports = {
 				}
 
 				if (settingsRow.showAPIData !== settingsRow.showAPIDataUpdate) {
-					db_settings.prepare('UPDATE settings SET showAPIDataUpdate = ? WHERE guild_id = ?').run(settingsRow.showAPIData, Bun.env.SERVER_ID);
+					db_settings
+						.prepare('UPDATE settings SET showAPIDataUpdate = ?, updateType = ?, lastUpdated = ? WHERE guild_id = ?')
+						.run(settingsRow.showAPIData, 'api', Math.floor(DateTime.now().toSeconds()), Bun.env.SERVER_ID);
 
 					updateHubData();
 
@@ -235,7 +249,9 @@ module.exports = {
 				}
 
 				if (settingsRow.alerts !== settingsRow.alertsUpdate) {
-					db_settings.prepare('UPDATE settings SET alertsUpdate = ? WHERE guild_id = ?').run(settingsRow.alerts, Bun.env.SERVER_ID);
+					db_settings
+						.prepare('UPDATE settings SET alertsUpdate = ?, updateType = ?, lastUpdated = ? WHERE guild_id = ?')
+						.run(settingsRow.alerts, 'alerts', Math.floor(DateTime.now().toSeconds()), Bun.env.SERVER_ID);
 
 					updateHubData();
 
@@ -243,7 +259,9 @@ module.exports = {
 				}
 
 				if (settingsRow.location !== settingsRow.locationUpdate) {
-					db_settings.prepare('UPDATE settings SET locationUpdate = ? WHERE guild_id = ?').run(settingsRow.location, Bun.env.SERVER_ID);
+					db_settings
+						.prepare('UPDATE settings SET locationUpdate = ?, updateType = ?, lastUpdated = ? WHERE guild_id = ?')
+						.run(settingsRow.location, 'location', Math.floor(DateTime.now().toSeconds()), Bun.env.SERVER_ID);
 
 					updateHubData();
 
@@ -251,7 +269,9 @@ module.exports = {
 				}
 
 				if (settingsRow.units !== settingsRow.unitsUpdate) {
-					db_settings.prepare('UPDATE settings SET unitsUpdate = ? WHERE guild_id = ?').run(settingsRow.units, Bun.env.SERVER_ID);
+					db_settings
+						.prepare('UPDATE settings SET unitsUpdate = ?, updateType = ?, lastUpdated = ? WHERE guild_id = ?')
+						.run(settingsRow.units, 'units', Math.floor(DateTime.now().toSeconds()), Bun.env.SERVER_ID);
 
 					updateHubData();
 
