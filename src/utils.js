@@ -1,6 +1,6 @@
 const { DateTime } = require('luxon');
 
-const emotes = require(`./data/${emoteFile(process.env.DEBUG)}Emotes.json`);
+const emotes = require(`./data/${emoteFile(Bun.env.DEBUG)}Emotes.json`);
 
 function emoteFile(debug) {
 	if (debug === 'true') return 'dev';
@@ -89,6 +89,23 @@ function conditionText(condition) {
 			return 'Heavy Rain';
 		default:
 			return condition;
+	}
+}
+
+function updateTypeText(type) {
+	switch (type) {
+		case 'forecast':
+			return '3-day forecast';
+		case 'api':
+			return 'API data';
+		case 'alerts':
+			return 'weather alerts';
+		case 'location':
+			return 'weather data location';
+		case 'units':
+			return 'units';
+		default:
+			return 'toggle';
 	}
 }
 
@@ -213,4 +230,4 @@ function currentConditionEmote(time, condition) {
 	}
 }
 
-module.exports = { emoteFile, checkUnits, forecastDay, conditionText, currentConditionEmote };
+module.exports = { emoteFile, checkUnits, forecastDay, conditionText, updateTypeText, currentConditionEmote };

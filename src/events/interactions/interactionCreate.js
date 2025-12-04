@@ -24,32 +24,32 @@ module.exports = {
 		if (interaction.isButton()) {
 			const buttonID = interaction.customId;
 
-			const getSettings = db_settings.prepare('SELECT * FROM settings WHERE guild_id = ?').get(process.env.SERVER_ID);
+			const getSettings = db_settings.prepare('SELECT * FROM settings WHERE guild_id = ?').get(Bun.env.SERVER_ID);
 
 			if (!buttonID) return;
 
 			if (buttonID == 'toggleThreeDayForecast') {
 				const newShowForecast = getSettings ? (getSettings.showForecast ? 0 : 1) : 1;
 
-				db_settings.prepare('UPDATE settings SET showForecast = ? WHERE guild_id = ?').run(newShowForecast, process.env.SERVER_ID);
+				db_settings.prepare('UPDATE settings SET showForecast = ? WHERE guild_id = ?').run(newShowForecast, Bun.env.SERVER_ID);
 
-				interaction.reply({ content: 'Toggled 3-Day Forecast', flags: MessageFlags.Ephemeral });
+				interaction.deferUpdate();
 			}
 
 			if (buttonID == 'toggleAPIData') {
 				const newShowAPIData = getSettings ? (getSettings.showAPIData ? 0 : 1) : 1;
 
-				db_settings.prepare('UPDATE settings SET showAPIData = ? WHERE guild_id = ?').run(newShowAPIData, process.env.SERVER_ID);
+				db_settings.prepare('UPDATE settings SET showAPIData = ? WHERE guild_id = ?').run(newShowAPIData, Bun.env.SERVER_ID);
 
-				interaction.reply({ content: 'Toggled API Data', flags: MessageFlags.Ephemeral });
+				interaction.deferUpdate();
 			}
 
 			if (buttonID == 'toggleAlerts') {
 				const newAlerts = getSettings ? (getSettings.alerts ? 0 : 1) : 1;
 
-				db_settings.prepare('UPDATE settings SET alerts = ? WHERE guild_id = ?').run(newAlerts, process.env.SERVER_ID);
+				db_settings.prepare('UPDATE settings SET alerts = ? WHERE guild_id = ?').run(newAlerts, Bun.env.SERVER_ID);
 
-				interaction.reply({ content: 'Toggled Weather Alerts', flags: MessageFlags.Ephemeral });
+				interaction.deferUpdate();
 			}
 
 			if (buttonID == 'settings') {
@@ -103,9 +103,9 @@ module.exports = {
 			const location = interaction.fields.getStringSelectValues('locationSelect');
 			const units = interaction.fields.getStringSelectValues('unitSelect');
 
-			db_settings.prepare('UPDATE settings SET location = ?, units = ? WHERE guild_id = ?').run(location[0], units[0], process.env.SERVER_ID);
+			db_settings.prepare('UPDATE settings SET location = ?, units = ? WHERE guild_id = ?').run(location[0], units[0], Bun.env.SERVER_ID);
 
-			interaction.reply({ content: `Updated location to ${location} and units to ${units}!`, flags: MessageFlags.Ephemeral });
+			interaction.deferUpdate();
 		}
 	},
 };

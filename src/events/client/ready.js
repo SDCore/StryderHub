@@ -34,7 +34,7 @@ module.exports = {
 		// Register slash commands
 		const commands = [];
 		const clientID = client.user.id;
-		const rest = new REST({ version: 10 }).setToken(process.env.DISCORD_TOKEN);
+		const rest = new REST({ version: 10 }).setToken(Bun.env.DISCORD_TOKEN);
 		const folders = fs.readdirSync(`${__dirname}/../../commands`);
 
 		client.commands = new Collection();
@@ -52,7 +52,7 @@ module.exports = {
 
 		// Push the commands to Discord
 		(async () => {
-			if (process.env.DEBUG == 'false') {
+			if (Bun.env.DEBUG == 'false') {
 				// If debug is disabled, assume production
 				// bot and register global slash commands
 				await rest.put(Routes.applicationCommands(clientID), { body: commands });
@@ -61,7 +61,7 @@ module.exports = {
 			} else {
 				// If debug is enabled, assume dev environment
 				// and only register slash commands for dev build
-				await rest.put(Routes.applicationGuildCommands(clientID, process.env.SERVER_ID), { body: commands });
+				await rest.put(Routes.applicationGuildCommands(clientID, Bun.env.SERVER_ID), { body: commands });
 
 				console.log(chalk.yellow(`${chalk.bold('[BOT]')} Successfully registered local slash commands`));
 			}
