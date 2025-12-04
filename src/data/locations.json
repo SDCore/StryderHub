@@ -3,6 +3,10 @@
 		"latitude": 42.263,
 		"longitude": -88.0039
 	},
+	"work": {
+		"latitude": 42.3657,
+		"longitude": -88.1699
+	},
 	"chicago": {
 		"latitude": 41.8781,
 		"longitude": -87.6298
