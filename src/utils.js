@@ -166,6 +166,8 @@ function currentConditionEmote(time, condition) {
 				return emotes.flurries;
 			case 'Light Snow and Breezy':
 				return emotes.flurries;
+			case 'Foggy':
+				return emotes.foggy;
 			default:
 				return emotes.clearDay;
 		}
@@ -225,6 +227,8 @@ function currentConditionEmote(time, condition) {
 			return emotes.flurries;
 		case 'Light Snow and Breezy':
 			return emotes.flurries;
+		case 'Foggy':
+			return emotes.foggy;
 		default:
 			return emotes.clearNight;
 	}
