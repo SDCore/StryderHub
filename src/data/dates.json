@@ -1,7 +1,23 @@
 {
+	"01-01": {
+		"name": "New Year's Day",
+		"emote": "🎉"
+	},
 	"01-28": {
 		"name": "Nalas Birthday",
 		"emote": "🎂"
+	},
+	"02-14": {
+		"name": "Valentine's Day",
+		"emote": "❤️"
+	},
+	"02-16": {
+		"name": "Presidents' Day",
+		"emote": "🇺🇸"
+	},
+	"03-08": {
+		"name": "Daylight Savings",
+		"emote": "⏰"
 	},
 	"03-09": {
 		"name": "Moms Birthday",
@@ -11,19 +27,75 @@
 		"name": "Grandpas Birthday",
 		"emote": "🎂"
 	},
+	"03-17": {
+		"name": "St. Patrick's Day",
+		"emote": "🍀"
+	},
 	"03-24": {
 		"name": "Dads Birthday",
 		"emote": "🎂"
+	},
+	"04-01": {
+		"name": "April Fools' Day",
+		"emote": "🤡"
+	},
+	"04-06": {
+		"name": "Easter",
+		"emote": "🐰"
+	},
+	"05-05": {
+		"name": "Cinco de Mayo",
+		"emote": "🌮"
+	},
+	"05-10": {
+		"name": "Mother's Day",
+		"emote": "💐"
+	},
+	"05-13": {
+		"name": "Besties Friendiversary",
+		"emote": "🎉"
 	},
 	"05-14": {
 		"name": "Birthday",
 		"emote": "🎂"
 	},
-	"11-27": {
+	"05-25": {
+		"name": "Memorial Day",
+		"emote": "🇺🇸"
+	},
+	"06-21": {
+		"name": "Father's Day",
+		"emote": "👔"
+	},
+	"07-04": {
+		"name": "Independence Day",
+		"emote": "🎆"
+	},
+	"09-07": {
+		"name": "Labor Day",
+		"emote": "🏖️"
+	},
+	"10-31": {
+		"name": "Halloween",
+		"emote": "🎃"
+	},
+	"11-01": {
+		"name": "Daylight Savings",
+		"emote": "⏰"
+	},
+	"11-03": {
+		"name": "Election Day",
+		"emote": "🗳️"
+	},
+	"11-11": {
+		"name": "Veterans Day",
+		"emote": "🇺🇸"
+	},
+	"11-26": {
 		"name": "Thanksgiving",
 		"emote": "🦃"
 	},
-	"11-28": {
+	"11-27": {
 		"name": "Black Friday",
 		"emote": "🛍️"
 	},
@@ -46,9 +118,5 @@
 	"12-31": {
 		"name": "New Year's Eve",
 		"emote": "🥂"
-	},
-	"01-01": {
-		"name": "New Year's Day",
-		"emote": "🎉"
 	}
 }
