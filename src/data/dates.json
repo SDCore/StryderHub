@@ -4,7 +4,15 @@
 		"emote": "🎉"
 	},
 	"01-28": {
-		"name": "Nalas Birthday",
+		"name": "Nala's Birthday",
+		"emote": "🎂"
+	},
+	"02-02": {
+		"name": "Jfizzy69's Birthday",
+		"emote": "🎂"
+	},
+	"02-04": {
+		"name": "Kayla's Birthday",
 		"emote": "🎂"
 	},
 	"02-14": {
@@ -15,16 +23,20 @@
 		"name": "Presidents' Day",
 		"emote": "🇺🇸"
 	},
+	"02-23": {
+		"name": "Carpet and Smurf's Birthday",
+		"emote": "🎂"
+	},
 	"03-08": {
 		"name": "Daylight Savings",
 		"emote": "⏰"
 	},
 	"03-09": {
-		"name": "Moms Birthday",
+		"name": "Mom's Birthday",
 		"emote": "🎂"
 	},
 	"03-12": {
-		"name": "Grandpas Birthday",
+		"name": "Grandpa's Birthday",
 		"emote": "🎂"
 	},
 	"03-17": {
@@ -32,12 +44,16 @@
 		"emote": "🍀"
 	},
 	"03-24": {
-		"name": "Dads Birthday",
+		"name": "Dad's Birthday",
 		"emote": "🎂"
 	},
 	"04-01": {
 		"name": "April Fools' Day",
 		"emote": "🤡"
+	},
+	"04-04": {
+		"name": "Mrs. Sanchez's Birthday",
+		"emote": "🎂"
 	},
 	"04-06": {
 		"name": "Easter",
@@ -51,6 +67,10 @@
 		"name": "Mother's Day",
 		"emote": "💐"
 	},
+	"05-11": {
+		"name": "CJ's Birthday",
+		"emote": "🎂"
+	},
 	"05-13": {
 		"name": "Besties Friendiversary",
 		"emote": "🎉"
@@ -63,6 +83,14 @@
 		"name": "Memorial Day",
 		"emote": "🇺🇸"
 	},
+	"06-06": {
+		"name": "Jamie's Birthday",
+		"emote": "🎂"
+	},
+	"06-11": {
+		"name": "Mr. Sanchez's Birthday",
+		"emote": "🎂"
+	},
 	"06-21": {
 		"name": "Father's Day",
 		"emote": "👔"
@@ -71,9 +99,49 @@
 		"name": "Independence Day",
 		"emote": "🎆"
 	},
+	"07-06": {
+		"name": "Daphne's Birthday",
+		"emote": "🎂"
+	},
+	"07-14": {
+		"name": "Katness's Birthday",
+		"emote": "🎂"
+	},
+	"07-29": {
+		"name": "Angie's Birthday",
+		"emote": "🎂"
+	},
+	"07-31": {
+		"name": "Amanda's Birthday",
+		"emote": "🎂"
+	},
+	"08-15": {
+		"name": "Taliyah's Birthday",
+		"emote": "🎂"
+	},
+	"09-03": {
+		"name": "Mya's Birthday",
+		"emote": "🎂"
+	},
 	"09-07": {
 		"name": "Labor Day",
 		"emote": "🏖️"
+	},
+	"09-20": {
+		"name": "Chelp's Birthday",
+		"emote": "🎂"
+	},
+	"10-07": {
+		"name": "Chowder's Birthday",
+		"emote": "🎂"
+	},
+	"10-22": {
+		"name": "Emmerlynn's Birthday",
+		"emote": "🎂"
+	},
+	"10-25": {
+		"name": "Korn's Birthday",
+		"emote": "🎂"
 	},
 	"10-31": {
 		"name": "Halloween",
@@ -84,8 +152,12 @@
 		"emote": "⏰"
 	},
 	"11-03": {
-		"name": "Election Day",
-		"emote": "🗳️"
+		"name": "Aspen's Birthday & Election Day",
+		"emote": "🎂 & 🗳️"
+	},
+	"11-10": {
+		"name": "Toast's Birthday",
+		"emote": "🎂"
 	},
 	"11-11": {
 		"name": "Veterans Day",
@@ -112,7 +184,7 @@
 		"emote": "🎄"
 	},
 	"12-29": {
-		"name": "Ladys Birthday",
+		"name": "Lady's Birthday",
 		"emote": "🎂"
 	},
 	"12-31": {
