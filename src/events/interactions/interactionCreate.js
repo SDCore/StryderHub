@@ -65,7 +65,7 @@ module.exports = {
 								new StringSelectMenuOptionBuilder().setLabel('Home').setValue('home').setDescription('Mundelein, IL').setDefault(true),
 								new StringSelectMenuOptionBuilder().setLabel('Work').setValue('work').setDescription('Fox Lake, IL'),
 								new StringSelectMenuOptionBuilder().setLabel('Chicago').setValue('chicago').setDescription('Chicago, IL'),
-								new StringSelectMenuOptionBuilder().setLabel('Pittsburgh').setValue('pittsburgh').setDescription('Pittsburgh, PA'),
+								new StringSelectMenuOptionBuilder().setLabel('Toast').setValue('toast').setDescription('Fargo, ND'),
 								new StringSelectMenuOptionBuilder().setLabel('New York').setValue('new_york').setDescription('New York, NY'),
 							)
 							.setMinValues(1)
