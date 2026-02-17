@@ -1,8 +1,6 @@
 const chalk = require('chalk');
-const { Database } = require('bun:sqlite');
+const dbConnection = require('../../database.js');
 const { ModalBuilder, MessageFlags, LabelBuilder, InteractionType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
-
-const db_settings = new Database(`${__dirname}/../../database/settings.sqlite`);
 
 module.exports = {
 	name: 'interactionCreate',
@@ -24,22 +22,24 @@ module.exports = {
 		if (interaction.isButton()) {
 			const buttonID = interaction.customId;
 
-			const getSettings = db_settings.prepare('SELECT * FROM settings WHERE guild_id = ?').get(Bun.env.SERVER_ID);
+			const getSettings = await dbConnection`SELECT * FROM hub_settings WHERE guild_id = ${Bun.env.SERVER_ID}`.then(res => res[0]);
 
 			if (!buttonID) return;
 
 			if (buttonID == 'toggleThreeDayForecast') {
-				const newShowForecast = getSettings ? (getSettings.showForecast ? 0 : 1) : 1;
+				const newShowForecast = getSettings ? (getSettings.showforecast ? 0 : 1) : 1;
 
-				db_settings.prepare('UPDATE settings SET showForecast = ? WHERE guild_id = ?').run(newShowForecast, Bun.env.SERVER_ID);
+				await dbConnection`UPDATE hub_settings SET showforecast = ${newShowForecast} WHERE guild_id = ${Bun.env.SERVER_ID}`.then(() => {
+					console.log('bread');
+				});
 
 				interaction.deferUpdate();
 			}
 
 			if (buttonID == 'toggleAPIData') {
-				const newShowAPIData = getSettings ? (getSettings.showAPIData ? 0 : 1) : 1;
+				const newShowAPIData = getSettings ? (getSettings.showbotdata ? 0 : 1) : 1;
 
-				db_settings.prepare('UPDATE settings SET showAPIData = ? WHERE guild_id = ?').run(newShowAPIData, Bun.env.SERVER_ID);
+				await dbConnection`UPDATE hub_settings SET showbotdata = ${newShowAPIData} WHERE guild_id = ${Bun.env.SERVER_ID}`;
 
 				interaction.deferUpdate();
 			}
@@ -47,7 +47,7 @@ module.exports = {
 			if (buttonID == 'toggleAlerts') {
 				const newAlerts = getSettings ? (getSettings.alerts ? 0 : 1) : 1;
 
-				db_settings.prepare('UPDATE settings SET alerts = ? WHERE guild_id = ?').run(newAlerts, Bun.env.SERVER_ID);
+				await dbConnection`UPDATE hub_settings SET alerts = ${newAlerts} WHERE guild_id = ${Bun.env.SERVER_ID}`;
 
 				interaction.deferUpdate();
 			}
@@ -104,7 +104,7 @@ module.exports = {
 			const location = interaction.fields.getStringSelectValues('locationSelect');
 			const units = interaction.fields.getStringSelectValues('unitSelect');
 
-			db_settings.prepare('UPDATE settings SET location = ?, units = ? WHERE guild_id = ?').run(location[0], units[0], Bun.env.SERVER_ID);
+			await dbConnection`UPDATE hub_settings SET location = ${location[0]}, units = ${units[0]} WHERE guild_id = ${Bun.env.SERVER_ID}`;
 
 			interaction.deferUpdate();
 		}
