@@ -1,12 +1,10 @@
 const chalk = require('chalk');
 const axios = require('axios');
 const { DateTime } = require('luxon');
-const { Database } = require('bun:sqlite');
+const dbConnection = require('../../database.js');
 const { version } = require('../../../package.json');
 const { emoteFile, checkUnits, forecastDay, conditionText, updateTypeText, currentConditionEmote } = require('../../utils.js');
 const { ButtonStyle, MessageFlags, ButtonBuilder, ActionRowBuilder, ContainerBuilder, TextDisplayBuilder, SeparatorSpacingSize } = require('discord.js');
-
-const db_settings = new Database(`${__dirname}/../../database/settings.sqlite`);
 
 const importantDates = require(`../../data/dates.json`);
 const emotes = require(`../../data/${emoteFile(Bun.env.DEBUG)}Emotes.json`);
@@ -16,11 +14,14 @@ const wait = n => new Promise(resolve => setTimeout(resolve, n));
 module.exports = {
 	name: 'clientReady',
 	once: true,
-	execute(client) {
+	async execute(client) {
 		if (Bun.env.ENABLED == 'false') return;
 
 		async function updateHubData() {
-			const getSettings = db_settings.prepare('SELECT showForecast, showAPIData, location, units, alerts, updateType, lastUpdated FROM settings WHERE guild_id = ?').get(Bun.env.SERVER_ID);
+			const getSettings =
+				await dbConnection`SELECT showforecast, showforecast_update, showbotdata, showbotdata_update, location, location_update, units, units_update, alerts, alerts_update, update_type, last_updated FROM hub_settings WHERE guild_id = ${Bun.env.SERVER_ID}`.then(
+					res => res[0],
+				);
 
 			const location = getSettings.location;
 
@@ -90,7 +91,7 @@ module.exports = {
 
 						hubContainer.addTextDisplayComponents(currentText);
 
-						if (getSettings && getSettings.showForecast) {
+						if (getSettings && getSettings.showforecast) {
 							const forecastText = new TextDisplayBuilder().setContent(
 								`## 3-Day Forecast\n${forecastDay(1, weatherData, getUnits.temperature)}\n${forecastDay(2, weatherData, getUnits.temperature)}\n${forecastDay(3, weatherData, getUnits.temperature)}`,
 							);
@@ -104,7 +105,7 @@ module.exports = {
 							var forecastButtonEmote = emotes.buttonOff;
 						}
 
-						if (getSettings && getSettings.showAPIData) {
+						if (getSettings && getSettings.showbotdata) {
 							const usage = parseInt(apiData['ratelimit-limit']) - parseInt(apiData['ratelimit-remaining']);
 							const usagePercent = ((usage / apiData['ratelimit-limit']) * 100).toFixed(2);
 							const unixTime = Math.floor(Date.now() / 1000);
@@ -114,9 +115,9 @@ module.exports = {
 
 							const apiText = new TextDisplayBuilder().setContent(
 								[
-									`## Pirate Weather API`,
+									`## Bot & Weather API Data`,
 									`${emotes.listArrow} Current Usage: ${usage.toLocaleString()}/${parseInt(apiData['ratelimit-limit']).toLocaleString()} (${usagePercent}%)`,
-									`${emotes.listArrow} Usage Resets <t:${resetTime}:R>`,
+									`${emotes.listArrow} Usage Resets <t:${resetTime}:R>\n${emotes.listArrow} Bot Uptime: <t:${Math.floor(process.uptime() + unixTime)}:R>`,
 								].join('\n'),
 							);
 
@@ -164,7 +165,7 @@ module.exports = {
 						}
 
 						const toggleForecastButton = new ButtonBuilder().setCustomId('toggleThreeDayForecast').setEmoji(forecastButtonEmote).setLabel('Forecast').setStyle(ButtonStyle.Secondary);
-						const toggleAPIDataButton = new ButtonBuilder().setCustomId('toggleAPIData').setEmoji(apiDataButtonEmote).setLabel('API').setStyle(ButtonStyle.Secondary);
+						const toggleAPIDataButton = new ButtonBuilder().setCustomId('toggleAPIData').setEmoji(apiDataButtonEmote).setLabel('Bot Data').setStyle(ButtonStyle.Secondary);
 						const toggleAlertsButton = new ButtonBuilder().setCustomId('toggleAlerts').setEmoji(apiAlertsButtonEmote).setLabel('Alerts').setStyle(ButtonStyle.Secondary);
 						const settingsButton = new ButtonBuilder().setCustomId('settings').setEmoji('⚙️').setStyle(ButtonStyle.Secondary);
 						// const startShiftButton = new ButtonBuilder().setCustomId('startShift').setLabel('+').setStyle(ButtonStyle.Success).setDisabled(true);
@@ -215,63 +216,59 @@ module.exports = {
 				});
 		}
 
-		setInterval(() => {
+		setInterval(async () => {
 			const newDate = new Date();
 			const currentSecond = newDate.getSeconds();
 			const currentMinute = newDate.getMinutes();
-			const settingsRow = db_settings
-				.prepare('SELECT showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate, location, locationUpdate, units, unitsUpdate, alerts, alertsUpdate FROM settings WHERE guild_id = ?')
-				.get(Bun.env.SERVER_ID);
+
+			const getSettings =
+				await dbConnection`SELECT showforecast, showforecast_update, showbotdata, showbotdata_update, location, location_update, units, units_update, alerts, alerts_update, update_type, last_updated FROM hub_settings WHERE guild_id = ${Bun.env.SERVER_ID}`.then(
+					res => res[0],
+				);
 
 			if (currentSecond === 0 && currentMinute % Bun.env.INTERVAL == 0) {
 				updateHubData();
 			}
 
-			if (settingsRow) {
-				if (settingsRow.showForecast !== settingsRow.showForecastUpdate) {
-					db_settings
-						.prepare('UPDATE settings SET showForecastUpdate = ?, updateType = ?, lastUpdated = ? WHERE guild_id = ?')
-						.run(settingsRow.showForecast, 'forecast', Math.floor(DateTime.now().toSeconds()), Bun.env.SERVER_ID);
+			if (getSettings) {
+				if (getSettings.showforecast !== getSettings.showforecast_update) {
+					await dbConnection`UPDATE hub_settings SET showforecast_update = ${getSettings.showforecast}, update_type = 'forecast', last_updated = ${Math.floor(DateTime.now().toSeconds())} WHERE guild_id = ${Bun.env.SERVER_ID}`.then(
+						() => {
+							console.log('bread');
+						},
+					);
 
 					updateHubData();
 
 					console.log(chalk.blue(`${chalk.bold('[BUTTON]')} 3-Day Forecast Toggled`));
 				}
 
-				if (settingsRow.showAPIData !== settingsRow.showAPIDataUpdate) {
-					db_settings
-						.prepare('UPDATE settings SET showAPIDataUpdate = ?, updateType = ?, lastUpdated = ? WHERE guild_id = ?')
-						.run(settingsRow.showAPIData, 'api', Math.floor(DateTime.now().toSeconds()), Bun.env.SERVER_ID);
+				if (getSettings.showbotdata !== getSettings.showbotdata_update) {
+					await dbConnection`UPDATE hub_settings SET showbotdata_update = ${getSettings.showbotdata}, update_type = 'api', last_updated = ${Math.floor(DateTime.now().toSeconds())} WHERE guild_id = ${Bun.env.SERVER_ID}`;
 
 					updateHubData();
 
-					console.log(chalk.blue(`${chalk.bold('[BUTTON]')} API Data Toggled`));
+					console.log(chalk.blue(`${chalk.bold('[BUTTON]')} Bot Data Toggled`));
 				}
 
-				if (settingsRow.alerts !== settingsRow.alertsUpdate) {
-					db_settings
-						.prepare('UPDATE settings SET alertsUpdate = ?, updateType = ?, lastUpdated = ? WHERE guild_id = ?')
-						.run(settingsRow.alerts, 'alerts', Math.floor(DateTime.now().toSeconds()), Bun.env.SERVER_ID);
+				if (getSettings.alerts !== getSettings.alerts_update) {
+					await dbConnection`UPDATE hub_settings SET alerts_update = ${getSettings.alerts}, update_type = 'alerts', last_updated = ${Math.floor(DateTime.now().toSeconds())} WHERE guild_id = ${Bun.env.SERVER_ID}`;
 
 					updateHubData();
 
 					console.log(chalk.blue(`${chalk.bold('[BUTTON]')} Weather Alerts Toggled`));
 				}
 
-				if (settingsRow.location !== settingsRow.locationUpdate) {
-					db_settings
-						.prepare('UPDATE settings SET locationUpdate = ?, updateType = ?, lastUpdated = ? WHERE guild_id = ?')
-						.run(settingsRow.location, 'location', Math.floor(DateTime.now().toSeconds()), Bun.env.SERVER_ID);
+				if (getSettings.location !== getSettings.location_update) {
+					await dbConnection`UPDATE hub_settings SET location_update = ${getSettings.location}, update_type = 'location', last_updated = ${Math.floor(DateTime.now().toSeconds())} WHERE guild_id = ${Bun.env.SERVER_ID}`;
 
 					updateHubData();
 
 					console.log(chalk.blue(`${chalk.bold('[MODAL]')} Location Updated`));
 				}
 
-				if (settingsRow.units !== settingsRow.unitsUpdate) {
-					db_settings
-						.prepare('UPDATE settings SET unitsUpdate = ?, updateType = ?, lastUpdated = ? WHERE guild_id = ?')
-						.run(settingsRow.units, 'units', Math.floor(DateTime.now().toSeconds()), Bun.env.SERVER_ID);
+				if (getSettings.units !== getSettings.units_update) {
+					await dbConnection`UPDATE hub_settings SET units_update = ${getSettings.units}, update_type = 'units', last_updated = ${Math.floor(DateTime.now().toSeconds())} WHERE guild_id = ${Bun.env.SERVER_ID}`;
 
 					updateHubData();
 

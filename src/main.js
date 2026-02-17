@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const { Database } = require('bun:sqlite');
+const dbConnection = require('./database.js');
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Guilds, GuildMembers, GuildMessages, GuildPresences } = GatewayIntentBits;
 
@@ -28,20 +28,10 @@ client
 	})
 	.catch(err => console.log(err));
 
-const db_settings = new Database(`${__dirname}/database/settings.sqlite`, { create: true });
+async function defaultDBValues() {
+	await dbConnection`UPDATE hub_settings SET showforecast = 1, showforecast_update = 1, showbotdata = 1, showbotdata_update = 1, location = 'home', location_update = 'home', units = 'us', units_update = 'us', alerts = 1, alerts_update = 1, update_type = 'None', last_updated = 0 WHERE guild_id = ${Bun.env.SERVER_ID}`;
+}
 
-db_settings.prepare('DROP TABLE IF EXISTS settings').run();
-
-db_settings
-	.prepare(
-		'CREATE TABLE IF NOT EXISTS settings (guild_id TEXT, showForecast BOOL, showForecastUpdate BOOL, showAPIData BOOL, showAPIDataUpdate BOOL, location TEXT, locationUpdate TEXT, units TEXT, unitsUpdate TEXT, alerts BOOL, alertsUpdate BOOL, updateType TEXT, lastUpdated TEXT, PRIMARY KEY(guild_id))',
-	)
-	.run();
-
-db_settings
-	.prepare(
-		'INSERT OR IGNORE INTO settings (guild_id, showForecast, showForecastUpdate, showAPIData, showAPIDataUpdate, location, locationUpdate, units, unitsUpdate, alerts, alertsUpdate, updateType, lastUpdated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-	)
-	.run(Bun.env.SERVER_ID, 1, 1, 1, 1, 'home', 'home', 'us', 'us', 1, 1, 'None', 0);
+defaultDBValues();
 
 module.exports = { client };
