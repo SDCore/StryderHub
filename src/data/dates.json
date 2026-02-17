@@ -23,6 +23,14 @@
 		"name": "Presidents' Day",
 		"emote": "🇺🇸"
 	},
+	"02-17": {
+		"name": "Lunar New Year",
+		"emote": "🧧"
+	},
+	"02-18": {
+		"name": "Ash Wednesday",
+		"emote": "✝️"
+	},
 	"02-23": {
 		"name": "Carpet and Smurf's Birthday",
 		"emote": "🎂"
