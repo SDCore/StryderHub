@@ -62,7 +62,7 @@ module.exports = {
 							.setCustomId('locationSelect')
 							.setPlaceholder('Select a location')
 							.addOptions(
-								new StringSelectMenuOptionBuilder().setLabel('Home').setValue('home').setDescription('Mundelein, IL').setDefault(true),
+								new StringSelectMenuOptionBuilder().setLabel('Home').setValue('casa').setDescription('Mundelein, IL').setDefault(true),
 								new StringSelectMenuOptionBuilder().setLabel('Work').setValue('work').setDescription('Fox Lake, IL'),
 								new StringSelectMenuOptionBuilder().setLabel('Chicago').setValue('chicago').setDescription('Chicago, IL'),
 								new StringSelectMenuOptionBuilder().setLabel('Toast').setValue('toast').setDescription('Fargo, ND'),

@@ -1,6 +1,6 @@
 {
 	"name": "stryderhub",
-	"version": "0.0.57",
+	"version": "0.0.58",
 	"description": "",
 	"main": "src/main.js",
 	"scripts": {
@@ -17,9 +17,9 @@
 	},
 	"homepage": "https://github.com/SDCore/StryderHub#readme",
 	"dependencies": {
-		"axios": "^1.13.6",
+		"axios": "^1.16.1",
 		"chalk": "4.1.2",
-		"discord.js": "^14.25.1",
+		"discord.js": "^14.26.4",
 		"luxon": "^3.7.2"
 	},
 	"private": true,
