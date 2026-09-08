@@ -31,7 +31,7 @@ module.exports = {
 			let long = locations[location].longitude;
 
 			const weatherURL = axios.get(`https://api.pirateweather.net/forecast/${Bun.env.WEATHER_API_KEY}/${lat},${long}?units=${getSettings.units}&exclude=minutely,hourly,flags`);
-			const geoURL = axios.get(`https://api.geoapify.com/v1/geocode/search?text=${lat},${long}&lang=en&limit=1&format=json&apiKey=${Bun.env.GEO_API_KEY}`);
+			const geoURL = axios.get(`https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${long}&lang=en&limit=1&format=json&apiKey=${Bun.env.GEO_API_KEY}`);
 
 			await axios
 				.all([weatherURL, geoURL])
